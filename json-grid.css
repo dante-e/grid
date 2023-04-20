@@ -5,22 +5,23 @@ body {
   justify-content: left;
   height: 100vh;
   margin: 0;
+  background-color: #282a36;
+  color: #f1fa8c;
 }
 
 button {
-  background-color: rgb(255, 255, 255);
-  color: #a7a7a7;
-  border: 0px solid rgb(224, 224, 224);
+  background-color: #282a36;
+  border: none;
+  color: #eee; 
   padding: 5px 10px;
   font-size: 24px;
-  border-radius: 4px;
   cursor: pointer;
   margin: 10px;
   font-family: 'IBM Plex Mono', monospace;
 }
 
 button:hover {
-  color: rgb(136, 136, 136);
+  color: #f1fa8c;
 }
 
 /* style the editor container */
@@ -42,6 +43,7 @@ button:hover {
   overflow: auto;
   justify-content: left;
   display: flex;
+  background-color: #282a36;
 }
 
 .json-grid-container {
@@ -54,19 +56,19 @@ button:hover {
 .json-grid-container td {
   text-align: left;
   padding: 1px 10px 1px 5px;
-  border: 0.5px solid rgb(224, 224, 224);
+  border: 0.5px solid #3e4158;
   vertical-align: top;
 }
 
 .json-grid-container th,
 .json-grid-container td.rowName {
   font-weight: 500;
-  color: rgb(136, 136, 136);
-  background-color: rgb(224, 224, 224);
+  color: #8a8dad;
+  background-color: #3e4158;
 }
 
 .json-grid-container table {
-  border: 1px solid rgb(224, 224, 224);
+  border: 1px solid #3e4158;
   border-radius: 5px;
   border-spacing: 0;
 }
@@ -76,13 +78,34 @@ button:hover {
 }
 
 .json-grid-container span.string {
-  color: #dd1144;
+  color: #eee;
 }
 
 .json-grid-container span.number {
-  color: #3f97b8;
+  color: #bd93f9;
 }
 
 .json-grid-container span.boolean {
-  color: #1da032;
+  color: #38ed7b;
+}
+
+/* Style the scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #282a36;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: #3e4158;
+  border-radius: 1px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #575b70;
 }
