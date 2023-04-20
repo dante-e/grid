@@ -1,16 +1,10 @@
 /* apply flexbox to the body element */
-* {
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
 body {
   display: flex;
   align-items: center;
   justify-content: left;
   height: 100vh;
   margin: 0;
-  overflow: auto;
 }
 
 button {
@@ -25,25 +19,28 @@ button {
   font-family: 'IBM Plex Mono', monospace;
 }
 
-
 /* style the editor container */
 #editor {
   width: 30%;
-  height:fit-content;
-  min-height: 100vh;
+  height: fit-content;
+  min-height: 96vh;
   padding: 20px;
   justify-content: left;
+  overflow: hidden;
 }
-
 
 .json-grid-container-wrapper {
+  position: relative;
+  z-index: 1;
   height: calc(100vh);
+  max-height: calc(100vh);
   min-width: calc(70% - 30px);
-  overflow: scroll;
+  overflow: auto;
   justify-content: left;
   margin-left: 10px;
-  display: flex; /* added */
+  display: flex;
 }
+
 .json-grid-container {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
@@ -69,9 +66,6 @@ button {
   border: 1px solid rgb(224, 224, 224);
   border-radius: 5px;
   border-spacing: 0;
-  -webkit-box-shadow: 5px 4px 6px 0px rgba(176, 176, 176, 0.4);
-  -moz-box-shadow: 5px 4px 6px 0px rgba(176, 176, 176, 0.4);
-  box-shadow: 5px 4px 6px 0px rgba(176, 176, 176, 0.6);
 }
 
 .json-grid-container table.shrinked {
