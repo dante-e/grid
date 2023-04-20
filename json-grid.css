@@ -40,7 +40,6 @@ button {
   height: calc(100vh);
   min-width: calc(70% - 30px);
   overflow: scroll;
-  align-items: center;
   justify-content: left;
   margin-left: 10px;
   display: flex; /* added */
