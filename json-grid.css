@@ -1,18 +1,31 @@
-/* apply flexbox to the body element */
-body {
-  display: flex;
-  align-items: center;
-  justify-content: left;
-  height: 100vh;
+/* Reset */
+* {
+  box-sizing: border-box;
   margin: 0;
-  background-color: #282a36;
-  color: #f1fa8c;
+  padding: 0;
 }
 
+/* Typography */
+body {
+  font-family: 'IBM Plex Mono', monospace;
+  color: #f1fa8c;
+  line-height: 1.5;
+}
+
+/* Layout */
+body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  height: 100vh;
+  background-color: #282a36;
+}
+
+/* Buttons */
 button {
   background-color: #282a36;
   border: none;
-  color: #eee; 
+  color: #eee;
   padding: 5px 10px;
   font-size: 24px;
   cursor: pointer;
@@ -24,35 +37,42 @@ button:hover {
   color: #f1fa8c;
 }
 
-/* style the editor container */
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Editor container */
 #editor {
   width: 30%;
   height: fit-content;
-  min-height: 96vh;
+  min-height: 100vh;
   padding: 20px;
-  justify-content: left;
   overflow: hidden;
 }
 
+/* JSON grid container wrapper */
 .json-grid-container-wrapper {
   position: relative;
   z-index: 1;
-  height: calc(100vh);
-  max-height: calc(100vh);
-  min-width: calc(70% - 30px);
+  height: 100vh;
+  min-width: 65%;
   overflow: auto;
-  justify-content: left;
   display: flex;
   background-color: #282a36;
 }
 
+/* JSON grid container */
 .json-grid-container {
-  font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
   display: inline-block;
   margin-top: 20px;
 }
 
+/* Table headers and row names */
 .json-grid-container th,
 .json-grid-container td {
   text-align: left;
@@ -66,8 +86,20 @@ button:hover {
   font-weight: 500;
   color: #8a8dad;
   background-color: #393c4e;
+  position: sticky;
 }
 
+.json-grid-container th {
+  top: 0;
+  z-index: 2;
+}
+
+.json-grid-container td.rowName {
+  left: 0;
+  z-index: 1;
+}
+
+/* Table */
 .json-grid-container table {
   border: 2px solid #393c4e;
   border-radius: 5px;
@@ -78,6 +110,7 @@ button:hover {
   display: none;
 }
 
+/* Data types */
 .json-grid-container span.string {
   color: #eee;
 }
@@ -90,23 +123,20 @@ button:hover {
   color: #38ed7b;
 }
 
-/* Style the scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
   background: #282a36;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background-color: #393c4e;
   border-radius: 1px;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background-color: #575b70;
 }
