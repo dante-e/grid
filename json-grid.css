@@ -50,13 +50,14 @@ button:hover {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 12px;
   display: inline-block;
+  margin-top: 20px;
 }
 
 .json-grid-container th,
 .json-grid-container td {
   text-align: left;
   padding: 1px 10px 1px 5px;
-  border: 0.5px solid #3e4158;
+  border: 0.5px solid #393c4e;
   vertical-align: top;
 }
 
@@ -64,11 +65,11 @@ button:hover {
 .json-grid-container td.rowName {
   font-weight: 500;
   color: #8a8dad;
-  background-color: #3e4158;
+  background-color: #393c4e;
 }
 
 .json-grid-container table {
-  border: 1px solid #3e4158;
+  border: 2px solid #393c4e;
   border-radius: 5px;
   border-spacing: 0;
 }
@@ -101,7 +102,7 @@ button:hover {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background-color: #3e4158;
+  background-color: #393c4e;
   border-radius: 1px;
 }
 
