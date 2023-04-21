@@ -185,4 +185,6 @@ JSONGrid.prototype.render = function () {
   this.container.classList.add(DOMHelper.JSON_GRID_CONTAINER_CLASSNAME);
 };
 
+
+
 window.JSONGrid = JSONGrid;
