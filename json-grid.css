@@ -140,3 +140,42 @@ button:hover {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #575b70;
 }
+
+/* Add the following media queries to your existing CSS */
+
+@media screen and (max-width: 768px) {
+  /* Adjust body layout for mobile devices */
+  body {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+
+  }
+
+  /* Adjust editor container for mobile devices */
+  #editor {
+    width: 100%;
+    min-height: 40vh;
+  }
+
+  /* Adjust JSON grid container wrapper for mobile devices */
+  .json-grid-container-wrapper {
+    min-width: 100%;
+    justify-content: flex-start;
+    height: auto;
+    margin-left: 10px;
+  }
+
+  /* Adjust the font size for mobile devices */
+  .json-grid-container {
+    font-size: 10px;
+  }
+
+  /* Adjust button container for mobile devices */
+  .button-container {
+    flex-direction: row;
+    height: auto;
+    justify-content: center;
+    padding: 10px;
+  }
+}
