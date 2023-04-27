@@ -19,13 +19,15 @@ const DOMHelper = {
 
     return element;
   },
-  createExpander: (dataItems, target) => {
+  createExpander: (title, count, target, isObject) => {
+    const countBrackets = isObject ? '{}' : '[]';
     const expander = DOMHelper.createElement('span', 'expander');
-    expander.textContent = `[${DOMHelper.getExpanderSign(target)}] ${dataItems} items`;
+    expander.textContent = `[${DOMHelper.getExpanderSign(target)}] ${title} ${countBrackets[0]}${count}${countBrackets[1]}`;
     expander.setAttribute(DOMHelper.EXPANDER_TARGET_ATTRIBUTE, target.id);
     expander.onclick = DOMHelper.onExpanderClick;
     return expander;
   },
+  
   onExpanderClick: (event) => {
     const tableId = event.target.getAttribute(DOMHelper.EXPANDER_TARGET_ATTRIBUTE);
     const target = document.getElementById(tableId);
@@ -78,9 +80,9 @@ class JSONGrid {
       tr.appendChild(firstTd);
 
       keys.forEach((key) => {
-        const td = DOMHelper.createElement('td', typeof obj, 'table-wrapper'); 
+        const td = DOMHelper.createElement('td', typeof obj, 'table-wrapper');
         const value = obj[key] === undefined || obj[key] === null ? `${obj[key]}` : obj[key];
-        td.appendChild(new JSONGrid(value).generateDOM());
+        td.appendChild(new JSONGrid(value).generateDOM(key)); // Pass key as an argument here
         tr.appendChild(td);
       });
 
@@ -113,7 +115,7 @@ class JSONGrid {
 
       if (tdType === 'object' && value) {
         const grid = new JSONGrid(value);
-        tdValue = grid.generateDOM();
+        tdValue = grid.generateDOM(key); // Pass key as an argument here
       } else {
         tdValue = DOMHelper.createElement('span', tdType, 'value');
         tdValue.textContent = `${value}`;
@@ -135,10 +137,9 @@ class JSONGrid {
     };
   }
 
-  // generates the DOM elements representing the JSON data
-  generateDOM() {
+  generateDOM(title) {
     let dom;
-
+  
     if (Array.isArray(this.data)) {
       dom = this.processArray();
     } else if (typeof this.data === 'object') {
@@ -148,23 +149,27 @@ class JSONGrid {
       span.textContent = `${this.data}`;
       return span;
     }
-
+  
     const container = DOMHelper.createElement('div', DOMHelper.JSON_GRID_ELEMENT_CONTAINER_CLASSNAME);
-    const tableId = `table-${this.instanceNumber}`;
-    const initialClasses = this.instanceNumber !== 0 ? [DOMHelper.TABLE_SHRINKED_CLASSNAME] : [];
-    const table = DOMHelper.createElement('table', 'table', initialClasses, tableId);
-    const tbody = DOMHelper.createElement('tbody');
-    const expander = DOMHelper.createExpander(dom.rows.length, table);
-    container.appendChild(expander);
-
-    dom.headers.forEach(val => tbody.appendChild(val));
-    dom.rows.forEach(val => tbody.appendChild(val));
-
-    table.appendChild(tbody);
-    container.appendChild(table);
-
+  
+      const tableId = `table-${this.instanceNumber}`;
+      const initialClasses = this.instanceNumber === 1 ? [] : [DOMHelper.TABLE_SHRINKED_CLASSNAME];
+      const table = DOMHelper.createElement('table', 'table', initialClasses, tableId);
+      const tbody = DOMHelper.createElement('tbody');
+      const isObject = typeof this.data === 'object' && !Array.isArray(this.data);
+      const expander = DOMHelper.createExpander(title || dom.rows.length, dom.rows.length, table, isObject);
+      container.appendChild(expander);
+  
+      dom.headers.forEach(val => tbody.appendChild(val));
+      dom.rows.forEach(val => tbody.appendChild(val));
+  
+      table.appendChild(tbody);
+      container.appendChild(table);
+  
     return container;
   }
+  
+  
 
   // renders the JSON data in a tabular format inside the specified container element
   render() {

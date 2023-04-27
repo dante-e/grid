@@ -67,9 +67,10 @@ button:hover {
 
 /* JSON grid container */
 .json-grid-container {
-  font-size: 12px;
+  font-size: 13px;
   display: inline-block;
   margin-top: 20px;
+  font-weight: 500;
 }
 
 /* Table headers and row names */
@@ -83,7 +84,7 @@ button:hover {
 
 .json-grid-container th,
 .json-grid-container td.rowName {
-  font-weight: 500;
+  font-weight: 800;
   color: #8a8dad;
   background-color: #393c4e;
   position: sticky;
@@ -179,3 +180,4 @@ button:hover {
     padding: 10px;
   }
 }
+
