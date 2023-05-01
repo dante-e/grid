@@ -8,7 +8,6 @@
 /* Typography */
 body {
   font-family: 'IBM Plex Mono', monospace;
-  color: #f1fa8c;
   line-height: 1.5;
 }
 
@@ -19,6 +18,7 @@ body {
   justify-content: center;
   height: 100vh;
   background-color: #282a36;
+  font-size: 11px;
 }
 
 /* Buttons */
@@ -142,8 +142,6 @@ button:hover {
   background-color: #575b70;
 }
 
-/* Add the following media queries to your existing CSS */
-
 @media screen and (max-width: 768px) {
   /* Adjust body layout for mobile devices */
   body {
@@ -181,3 +179,73 @@ button:hover {
   }
 }
 
+.expander {
+  color: #f1fa8c;
+  cursor: pointer;
+}
+
+/* Light mode */
+.light-mode {
+  background-color: #fff;
+}
+
+.light-mode body {
+  color: #dd1144;
+}
+
+.light-mode button {
+  background-color: #fff;
+  color: rgb(136, 136, 136);
+}
+
+.light-mode button:hover {
+  color: #a7a7a7;
+}
+
+.light-mode .expander {
+  color: #dd1144;
+}
+
+.light-mode .json-grid-container span.string {
+  color: #000;
+}
+
+.light-mode .json-grid-container span.number {
+  color: #3f97b8;
+}
+
+.light-mode .json-grid-container span.boolean {
+  color: #1da032;
+}
+
+.light-mode .json-grid-container-wrapper {
+  background-color: #fff;
+}
+
+.light-mode .json-grid-container th,
+.light-mode .json-grid-container td.rowName {
+  color: rgb(136, 136, 136);
+  background-color: rgb(224, 224, 224);
+}
+
+.light-mode .json-grid-container th,
+.light-mode .json-grid-container td {
+  border: 0.5px solid rgb(224, 224, 224);
+}
+
+.light-mode .json-grid-container table {
+  border: 2px solid rgb(224, 224, 224);
+  border-radius: 5px;
+}
+
+.light-mode ::-webkit-scrollbar-track {
+  background: #f5f5f5;
+}
+
+.light-mode ::-webkit-scrollbar-thumb {
+  background-color: rgb(224, 224, 224);
+}
+
+.light-mode ::-webkit-scrollbar-thumb:hover {
+  background-color: #b3b3b3;
+}

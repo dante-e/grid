@@ -50,50 +50,55 @@ class JSONGrid {
     this.instanceNumber = JSONGrid.instances || 0;
     JSONGrid.instances = (JSONGrid.instances || 0) + 1;
   }
+  if (shrinked) {
+    // Add the 'shrinked' class to the DOM element
+    element.classList.add('shrinked');
+  }
 
 // creates table headers for the unique keys found in the array and generates table rows for each object in the array
-  processArray() {
-    const keys = [];
-    this.data.forEach((val) => {
-      const objKeys = Object.keys(val);
-      objKeys.forEach((key) => {
-        if (!keys.includes(key)) {
-          keys.push(key);
-        }
-      });
+processArray() {
+  const keys = [];
+  this.data.forEach((val) => {
+    const objKeys = Object.keys(val);
+    objKeys.forEach((key) => {
+      if (!keys.includes(key)) {
+        keys.push(key);
+      }
+    });
+  });
+
+  const headers = DOMHelper.createElement('tr');
+  headers.appendChild(DOMHelper.createElement('th'));
+
+  keys.forEach((value) => {
+    const td = DOMHelper.createElement('th');
+    td.textContent = value.toString();
+    headers.appendChild(td);
+  });
+
+  const rows = this.data.map((obj, index) => {
+    const tr = DOMHelper.createElement('tr');
+    const firstTd = DOMHelper.createElement('td', typeof index);
+
+    firstTd.appendChild(new JSONGrid(index).generateDOM());
+    tr.appendChild(firstTd);
+
+    keys.forEach((key) => {
+      const td = DOMHelper.createElement('td', typeof obj, 'table-wrapper');
+      const value = obj[key] === undefined || obj[key] === null ? '' : obj[key]; // Change here
+      td.appendChild(new JSONGrid(value).generateDOM(key)); // Pass key as an argument here
+      tr.appendChild(td);
     });
 
-    const headers = DOMHelper.createElement('tr');
-    headers.appendChild(DOMHelper.createElement('th'));
+    return tr;
+  });
 
-    keys.forEach((value) => {
-      const td = DOMHelper.createElement('th');
-      td.textContent = value.toString();
-      headers.appendChild(td);
-    });
+  return {
+    headers: [headers],
+    rows: rows,
+  };
+}
 
-    const rows = this.data.map((obj, index) => {
-      const tr = DOMHelper.createElement('tr');
-      const firstTd = DOMHelper.createElement('td', typeof index);
-
-      firstTd.appendChild(new JSONGrid(index).generateDOM());
-      tr.appendChild(firstTd);
-
-      keys.forEach((key) => {
-        const td = DOMHelper.createElement('td', typeof obj, 'table-wrapper');
-        const value = obj[key] === undefined || obj[key] === null ? `${obj[key]}` : obj[key];
-        td.appendChild(new JSONGrid(value).generateDOM(key)); // Pass key as an argument here
-        tr.appendChild(td);
-      });
-
-      return tr;
-    });
-
-    return {
-      headers: [headers],
-      rows: rows,
-    };
-  }
 
 // generates table rows for each key-value pair in the object
   processObject() {

@@ -22,3 +22,23 @@ form.addEventListener('submit', (event) => {
   var jsonGrid = new JSONGrid(JSON.parse(data), container);
   jsonGrid.render();
 });
+
+// Get the light mode toggle button element
+const lightModeToggle = document.getElementById('light-mode-toggle');
+
+// Add an event listener to handle the click event
+lightModeToggle.addEventListener('click', () => {
+  // Toggle the "light-mode" class on the body element
+  document.body.classList.toggle('light-mode');
+  
+  // Update the button text depending on the current mode
+  if (document.body.classList.contains('light-mode')) {
+    editor.setTheme("ace/theme/github");
+    lightModeToggle.textContent = 'dark';
+  } else {
+    editor.setTheme("ace/theme/dracula");
+    lightModeToggle.textContent = 'light';
+  }
+});
+
+
