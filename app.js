@@ -19,6 +19,7 @@ const form = document.querySelector('form');
 form.addEventListener('submit', (event) => {
   event.preventDefault();
   var data = editor.getValue();
+  JSONGrid.resetInstanceCounter();
   var jsonGrid = new JSONGrid(JSON.parse(data), container);
   jsonGrid.render();
 });
