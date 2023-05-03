@@ -75,8 +75,7 @@ button:hover {
 
 /* Table headers and row names */
 .json-grid-container th,
-.json-grid-container td,
-.json-grid-container table {
+.json-grid-container td {
   text-align: left;
   padding: 1px 10px 1px 5px;
   border: 0.5px solid #393c4e;
@@ -89,11 +88,6 @@ button:hover {
   color: #8a8dad;
   background-color: #393c4e;
   position: sticky;
-}
-
-.json-grid-container .json-grid-element-container {
-  border: 2px solid #393c4e;
-  border-radius: 5px;
 }
 
 .json-grid-container th {
@@ -248,10 +242,6 @@ button:hover {
 .light-mode .json-grid-container table {
   border: 2px solid rgb(224, 224, 224);
   border-radius: 5px;
-}
-
-.light-mode .json-grid-container .json-grid-element-container {
-  border: 2px solid rgb(224, 224, 224);
 }
 
 .light-mode ::-webkit-scrollbar-track {
