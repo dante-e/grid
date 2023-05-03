@@ -142,46 +142,39 @@ button:hover {
   background-color: #575b70;
 }
 
-@media screen and (max-width: 768px) {
-  /* Adjust body layout for mobile devices */
-  body {
-    flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-start;
+#search-input {
+  font-size: 24px;
+  border: none;
+  font-family: 'IBM Plex Mono', monospace;
+  background-color: transparent;
+  color: #eee;
+  outline: none;
+  width: 100%;
+  margin: 10px;
+  padding: 5px 10px;
+}
 
-  }
-
-  /* Adjust editor container for mobile devices */
-  #editor {
-    width: 100%;
-    min-height: 40vh;
-  }
-
-  /* Adjust JSON grid container wrapper for mobile devices */
-  .json-grid-container-wrapper {
-    min-width: 100%;
-    justify-content: flex-start;
-    height: auto;
-    margin-left: 10px;
-  }
-
-  /* Adjust the font size for mobile devices */
-  .json-grid-container {
-    font-size: 10px;
-  }
-
-  /* Adjust button container for mobile devices */
-  .button-container {
-    flex-direction: row;
-    height: auto;
-    justify-content: center;
-    padding: 10px;
-  }
+#search-input::placeholder {
+  color: #575b70;
 }
 
 .expander {
   color: #f1fa8c;
   cursor: pointer;
+}
+
+.expander:hover {
+  color: #fcffd5;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.highlight {
+  background-color: yellow;
+  color: #000;
 }
 
 /* Light mode */
@@ -202,8 +195,21 @@ button:hover {
   color: #a7a7a7;
 }
 
+.light-mode #search-input {
+  color: rgb(136, 136, 136);
+}
+
+.light-mode #search-input::placeholder {
+  color: #cacaca;
+}
+
 .light-mode .expander {
   color: #dd1144;
+}
+
+.light-mode .expander:hover {
+  color: #ff255b;
+
 }
 
 .light-mode .json-grid-container span.string {
