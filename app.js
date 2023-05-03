@@ -23,26 +23,52 @@ form.addEventListener('submit', (event) => {
   jsonGrid.render();
 });
 
+function toggleTheme() {
+  const body = document.body;
+  body.classList.toggle("light-mode");
+
+  // Update the button text and Ace editor theme depending on the current mode
+  if (body.classList.contains("light-mode")) {
+    editor.setTheme("ace/theme/github");
+    lightModeToggle.textContent = "dark";
+
+    // Store the theme preference in localStorage
+    localStorage.setItem("theme", "light-mode");
+  } else {
+    editor.setTheme("ace/theme/dracula");
+    lightModeToggle.textContent = "light";
+
+    // Store the theme preference in localStorage
+    localStorage.setItem("theme", "dark-mode");
+  }
+}
+
+function loadTheme() {
+  const storedTheme = localStorage.getItem("theme");
+
+  if (storedTheme) {
+    document.body.className = storedTheme;
+
+    if (storedTheme === "light-mode") {
+      editor.setTheme("ace/theme/github");
+      lightModeToggle.textContent = "dark";
+    } else {
+      editor.setTheme("ace/theme/dracula");
+      lightModeToggle.textContent = "light";
+    }
+  }
+}
+
 // Get the light mode toggle button element
 const lightModeToggle = document.getElementById('light-mode-toggle');
 
-// Add an event listener to handle the click event
-lightModeToggle.addEventListener('click', () => {
-  // Toggle the "light-mode" class on the body element
-  document.body.classList.toggle('light-mode');
-  
-  // Update the button text depending on the current mode
-  if (document.body.classList.contains('light-mode')) {
-    editor.setTheme("ace/theme/github");
-    lightModeToggle.textContent = 'dark';
-  } else {
-    editor.setTheme("ace/theme/dracula");
-    lightModeToggle.textContent = 'light';
-  }
+lightModeToggle.addEventListener('click', toggleTheme);
+
+document.addEventListener("DOMContentLoaded", function() {
+  loadTheme();
 });
 
 const searchInput = document.getElementById('search-input');
-searchInput.addEventListener('input', performSearch);
 
 function removeHighlights() {
   const highlights = document.querySelectorAll('.highlight');
@@ -53,7 +79,26 @@ function removeHighlights() {
   });
 }
 
+function expandShrinkedTable(element) {
+  const shrinkedTable = element.closest('.shrinked');
+  if (shrinkedTable) {
+    shrinkedTable.classList.remove('shrinked');
+  }
+}
+
+function shrinkExpandedTables() {
+  const expanders = document.querySelectorAll(`.${DOMHelper.JSON_GRID_ELEMENT_CONTAINER_CLASSNAME} > .expander`);
+  expanders.forEach(expander => {
+    const target = document.getElementById(expander.getAttribute(DOMHelper.EXPANDER_TARGET_ATTRIBUTE));
+    if (target && !target.classList.contains(DOMHelper.TABLE_SHRINKED_CLASSNAME)) {
+      expander.click();
+    }
+  });
+}
+
 function traverseAndHighlight(element, query) {
+  let matched = false;
+
   if (element.nodeType === Node.TEXT_NODE && element.textContent.trim()) {
     const textContent = element.textContent;
     const regex = new RegExp(`(${query})`, 'gi');
@@ -69,16 +114,18 @@ function traverseAndHighlight(element, query) {
       }
 
       element.parentNode.removeChild(element);
-      return;
+      matched = true;
     }
   }
 
   if (element.nodeType === Node.ELEMENT_NODE) {
     for (let i = 0; i < element.childNodes.length; i++) {
       const child = element.childNodes[i];
-      traverseAndHighlight(child, query);
+      matched = traverseAndHighlight(child, query) || matched;
     }
   }
+
+  return matched;
 }
 
 // Debounce function
@@ -92,14 +139,13 @@ function debounce(func, wait) {
 }
 
 // Perform search with debouncing
-const debouncedPerformSearch = debounce(performSearch, 200);
+const debouncedPerformSearch = debounce(performSearch, 1000);
 searchInput.addEventListener('input', debouncedPerformSearch);
 
 // Lightweight search function
 let searchAnimationFrame;
 
 function performSearch(event) {
-  const query = event.target.value;
   const rows = document.querySelectorAll('.json-grid-container tbody tr');
 
   // Cancel the previous search animation frame if it exists
@@ -111,21 +157,31 @@ function performSearch(event) {
   searchAnimationFrame = requestAnimationFrame(() => {
     removeHighlights();
 
+    const query = searchInput.value.trim();
+
     if (!query) {
+      shrinkExpandedTables(); // Call the function if the query is empty
       return;
     }
+  
+    const elements = Array.from(document.querySelectorAll('.json-grid-container td, .json-grid-container th, .json-grid-container .json-grid-element-container'));
+    elements.forEach(element => {
+      let matched = false;
+      if (element.tagName === 'TD' || element.tagName === 'TH') {
+        matched = traverseAndHighlight(element, query);
+      } else if (element.classList.contains('json-grid-element-container')) {
+        matched = traverseAndHighlight(element, query);
+      }
 
-    rows.forEach(row => {
-      const elements = row.querySelectorAll('td, th, .json-grid-element-container');
-      elements.forEach(element => {
-        if (!element.closest('.shrinked')) {
-          if (element.tagName === 'TD' || element.tagName === 'TH') {
-            traverseAndHighlight(element, query);
-          } else if (element.classList.contains('json-grid-element-container')) {
-            traverseAndHighlight(element, query);
+      if (matched) {
+        const expander = element.closest('.json-grid-element-container').querySelector('.expander');
+        if (expander) {
+          const target = document.getElementById(expander.getAttribute(DOMHelper.EXPANDER_TARGET_ATTRIBUTE));
+          if (target && target.classList.contains(DOMHelper.TABLE_SHRINKED_CLASSNAME)) {
+            expander.click();
           }
         }
-      });
+      }
     });
   });
 }

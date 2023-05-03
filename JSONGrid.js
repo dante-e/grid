@@ -101,78 +101,74 @@ processArray() {
 
 
 // generates table rows for each key-value pair in the object
-  processObject() {
-    const keys = Object.keys(this.data);
-    const headers = DOMHelper.createElement('tr');
+processObject(isRoot = false) {
+  const keys = Object.keys(this.data);
+  const rows = keys.map((key) => {
+    const tr = DOMHelper.createElement('tr');
+    const keyTd = DOMHelper.createElement('td', 'string', 'rowName');
+    const value = this.data[key];
+    const tdType = typeof value;
+    let tdValue;
 
-    keys.forEach((value) => {
-      const td = DOMHelper.createElement('td');
-      td.textContent = `${value}`;
-      headers.appendChild(td);
-    });
-
-    const rows = keys.map((key) => {
-      const tr = DOMHelper.createElement('tr');
-      const keyTd = DOMHelper.createElement('td', 'string', 'rowName');
-      const value = this.data[key];
-      const tdType = typeof value;
-      let tdValue;
-
-      if (tdType === 'object' && value) {
-        const grid = new JSONGrid(value);
-        tdValue = grid.generateDOM(key); // Pass key as an argument here
-      } else {
-        tdValue = DOMHelper.createElement('span', tdType, 'value');
-        tdValue.textContent = `${value}`;
-      }
-
-      const valTd = DOMHelper.createElement('td', tdType);
-
-      keyTd.textContent = key;
-      valTd.appendChild(tdValue);
-      tr.appendChild(keyTd);
-      tr.appendChild(valTd);
-
-      return tr;
-    });
-
-    return {
-      headers: [],
-      rows: rows,
-    };
-  }
-
-  generateDOM(title) {
-    let dom;
-  
-    if (Array.isArray(this.data)) {
-      dom = this.processArray();
-    } else if (typeof this.data === 'object') {
-      dom = this.processObject();
+    if (tdType === 'object' && value) {
+      const grid = new JSONGrid(value);
+      tdValue = grid.generateDOM(key, !isRoot); // Pass !isRoot as an argument here
     } else {
-      const span = DOMHelper.createElement('span', typeof this.data);
-      span.textContent = `${this.data}`;
-      return span;
+      tdValue = DOMHelper.createElement('span', tdType, 'value');
+      tdValue.textContent = `${value}`;
     }
-  
-    const container = DOMHelper.createElement('div', DOMHelper.JSON_GRID_ELEMENT_CONTAINER_CLASSNAME);
-  
-      const tableId = `table-${this.instanceNumber}`;
-      const initialClasses = this.instanceNumber === 1 ? [] : [DOMHelper.TABLE_SHRINKED_CLASSNAME];
-      const table = DOMHelper.createElement('table', 'table', initialClasses, tableId);
-      const tbody = DOMHelper.createElement('tbody');
-      const isObject = typeof this.data === 'object' && !Array.isArray(this.data);
-      const expander = DOMHelper.createExpander(title || dom.rows.length, dom.rows.length, table, isObject);
-      container.appendChild(expander);
-  
-      dom.headers.forEach(val => tbody.appendChild(val));
-      dom.rows.forEach(val => tbody.appendChild(val));
-  
-      table.appendChild(tbody);
-      container.appendChild(table);
-  
-    return container;
+
+    const valTd = DOMHelper.createElement('td', tdType);
+
+    keyTd.textContent = key;
+    valTd.appendChild(tdValue);
+    tr.appendChild(keyTd);
+    tr.appendChild(valTd);
+
+    return tr;
+  });
+
+  return {
+    headers: [],
+    rows: rows,
+  };
+}
+
+generateDOM(title, renderRootTable = false) {
+  let dom;
+
+  if (Array.isArray(this.data)) {
+    dom = this.processArray();
+  } else if (typeof this.data === 'object') {
+    dom = this.processObject(renderRootTable); // Pass renderRootTable as an argument here
+  } else {
+    const span = DOMHelper.createElement('span', typeof this.data);
+    span.textContent = `${this.data}`;
+    return span;
   }
+
+  const container = DOMHelper.createElement('div', DOMHelper.JSON_GRID_ELEMENT_CONTAINER_CLASSNAME);
+
+  if (renderRootTable) {
+    const tableId = `table-${this.instanceNumber}`;
+    const initialClasses = this.instanceNumber === 1 ? [] : [DOMHelper.TABLE_SHRINKED_CLASSNAME];
+    const table = DOMHelper.createElement('table', 'table', initialClasses, tableId);
+    const tbody = DOMHelper.createElement('tbody');
+    const isObject = typeof this.data === 'object' && !Array.isArray(this.data);
+    const expander = DOMHelper.createExpander(title || dom.rows.length, dom.rows.length, table, isObject);
+    container.appendChild(expander);
+
+    dom.headers.forEach(val => tbody.appendChild(val));
+    dom.rows.forEach(val => tbody.appendChild(val));
+
+    table.appendChild(tbody);
+    container.appendChild(table);
+  } else {
+    dom.rows.forEach(val => container.appendChild(val));
+  }
+
+  return container;
+}
   
   
 
