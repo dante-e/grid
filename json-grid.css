@@ -7,7 +7,7 @@
 
 /* Typography */
 body {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: "IBM Plex Mono", monospace;
   line-height: 1.5;
 }
 
@@ -30,7 +30,7 @@ button {
   font-size: 24px;
   cursor: pointer;
   margin: 10px;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: "IBM Plex Mono", monospace;
 }
 
 button:hover {
@@ -69,7 +69,7 @@ button:hover {
 .json-grid-container {
   font-size: 13px;
   display: inline-block;
-  margin-top: 20px;
+  margin-top: 35px;
   font-weight: 500;
 }
 
@@ -92,12 +92,12 @@ button:hover {
 
 .json-grid-container th {
   top: 0;
-  z-index: 2;
+  z-index: -1;
 }
 
 .json-grid-container td.rowName {
   left: 0;
-  z-index: 1;
+  z-index: 0;
 }
 
 /* Table */
@@ -127,6 +127,7 @@ button:hover {
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -142,10 +143,18 @@ button:hover {
   background-color: #575b70;
 }
 
+::-webkit-scrollbar-corner {
+  background-color: #282a36
+}
+
+.light-mode ::-webkit-scrollbar-corner {
+  background-color: #f5f5f5;
+}
+
 #search-input {
   font-size: 24px;
   border: none;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: "IBM Plex Mono", monospace;
   background-color: transparent;
   color: #eee;
   outline: none;
@@ -209,7 +218,6 @@ button:hover {
 
 .light-mode .expander:hover {
   color: #ff255b;
-
 }
 
 .light-mode .json-grid-container span.string {
@@ -254,4 +262,30 @@ button:hover {
 
 .light-mode ::-webkit-scrollbar-thumb:hover {
   background-color: #b3b3b3;
+}
+
+.github-link-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(224, 224, 224, 0);
+  padding: 10px;
+  text-align: right;
+  color: #eee;
+  z-index: 1000;
+}
+
+.github-link-bar a {
+  text-decoration: none;
+  color: #eee;
+  padding: 5px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  margin: 10px;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.light-mode .github-link-bar a {
+  color: rgb(136, 136, 136);
 }
