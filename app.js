@@ -1,10 +1,27 @@
 var editor = ace.edit("editor");
 editor.setTheme("ace/theme/dracula");
 editor.session.setMode("ace/mode/json");
+
 function clearEditor() {
       editor.setValue("");
-  }
-  function formatJSON() {
+}
+
+function paste() {
+  // Use the Clipboard API to get the clipboard data
+  navigator.clipboard.readText()
+    .then(clipboardText => {
+      // The clipboardText variable now contains the pasted content
+      // You can then set it to the target element (e.g., textarea)
+      editor.setValue("" + clipboardText);
+      console.log("pasted");
+    })
+    .catch(err => {
+      console.error('Failed to read clipboard contents: ', err);
+    });
+}
+
+
+function formatJSON() {
     try {
       var unformattedJSON = JSON.parse(editor.getValue());
       var formattedJSON = JSON.stringify(unformattedJSON, null, 2);
