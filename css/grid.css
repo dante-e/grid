@@ -192,10 +192,10 @@ button:hover {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: #000000;
+  background-color: rgba(0, 0, 0, 0.5);
   color: #eee;
-  padding: 5px 10px;
-  font-size: 13px;
+  padding: 3px 15px;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -212,12 +212,12 @@ button:hover {
 }
 
 #copy-path-button {
-  background-color: #000000;
+  background-color: rgba(0, 0, 0, 0);
   border: none;
   color: #eee;
-  padding: 3px 8px;
+  padding: 3px 15px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
   font-family: "IBM Plex Mono", monospace;
 }
 
@@ -330,11 +330,11 @@ button:hover {
 }
 
 .cell-hover {
-  background-color: #3a3a3a; /* lighter highlight color for hover */
+  background-color: rgba(124, 124, 124, 0.3);; /* lighter highlight color for hover */
 }
 
 .cell-locked {
-  background-color: #555; /* darker highlight color for locked */
+  background-color: rgba(126, 126, 126, 0.5);; /* darker highlight color for locked */
 }
 
 /* Make table horizontally scrollable always */

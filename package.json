@@ -1,0 +1,17 @@
+{
+    "name": "grid",
+    "version": "1.0.0",
+    "description": "JSONGrid - Convert JSON data to a grid for better visualization",
+    "main": "index.html",
+    "scripts": {
+        "test:unit": "vitest --config vitest.config.js",
+        "test:e2e": "playwright test",
+        "test": "npm run test:unit && npm run test:e2e"
+    },
+    "devDependencies": {
+        "vitest": "^0.32.2",
+        "@vitest/ui": "^0.32.2",
+        "playwright": "^1.37.0"
+    }
+
+}
