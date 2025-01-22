@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>JSON Grid - JSON Data to Grid Visualizer</title>
-    <meta name="description" content="Convert JSON data to a readable, Grid format for easier visualization.">
-    <meta name="keywords" content="JSON, Grid">
-    <link rel="icon" type="image/x-icon" href="./json-5.png">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./json-grid.css">
+    <meta name="description" content="Convert JSON data to a readable, Grid format for easier visualization."/>
+    <meta name="keywords" content="JSON, Grid"/>
+    <link rel="icon" type="image/x-icon" href="./json-5.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./json-grid.css" />
   </head>
   <body>
     <div id="editor" class="editor">
@@ -158,27 +160,33 @@
         ]
       }
     </div>
-      <div class="button-container">
-        <form class="json-grid-form">
+
+    <div class="button-container">
+      <form class="json-grid-form">
         <button type="submit">grid</button>
       </form>
-        <button type="button" onclick="clearEditor()">clear</button>
-        <button type="button" onclick="paste()">paste</button>
-        <button type="button" onclick="formatJSON()">format</button>
-        <button id="light-mode-toggle">light</button>
-        <div class="search-container">
-          <input type="text" id="search-input" placeholder="search">
-        </div>
+      <button type="button" onclick="clearEditor()">clear</button>
+      <button type="button" onclick="paste()">paste</button>
+      <button type="button" onclick="formatJSON()">format</button>
+      <!-- Make sure the toggle button has this ID -->
+      <button id="light-mode-toggle">light</button>
+
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="search" />
       </div>
-    
+    </div>
+
     <div class="json-grid-container-wrapper">
       <div id="container" class="json-grid-container"></div>
     </div>
 
+    <div id="json-path-panel">
+      <span id="json-path-display">Hover over a value to see its path</span>
+      <button id="copy-path-button" onclick="copyJSONPath()">Copy Path</button>
+    </div>
+
     <div class="github-link-bar">
-      <a href="https://github.com/dante-e" target="_blank">
-        made by dante e.
-      </a>
+      <a href="https://github.com/dante-e" target="_blank">made by dante e.</a>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.17.0/ace.js"></script>

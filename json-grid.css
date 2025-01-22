@@ -186,6 +186,45 @@ button:hover {
   color: #000;
 }
 
+/* JSON Path Panel */
+#json-path-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #000000;
+  color: #eee;
+  padding: 5px 10px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 9999;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+#json-path-display {
+  flex: 1;
+  margin-right: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#copy-path-button {
+  background-color: #000000;
+  border: none;
+  color: #eee;
+  padding: 3px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+#copy-path-button:hover {
+  color: #f1fa8c;
+}
+
 /* Light mode */
 .light-mode {
   background-color: #fff;
@@ -288,4 +327,75 @@ button:hover {
 
 .light-mode .github-link-bar a {
   color: rgb(136, 136, 136);
+}
+
+.cell-hover {
+  background-color: #3a3a3a; /* lighter highlight color for hover */
+}
+
+.cell-locked {
+  background-color: #555; /* darker highlight color for locked */
+}
+
+/* Make table horizontally scrollable always */
+.json-grid-container table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Responsive for tablets and below */
+@media (max-width: 768px) {
+  /* Stack layout instead of side-by-side */
+  body {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto; /* Let content define height */
+  }
+
+  .button-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Editor takes full width */
+  #editor {
+    width: 100% !important;
+    min-height: 200px;
+  }
+
+  /* JSON grid container also full width */
+  .json-grid-container-wrapper {
+    width: 100% !important;
+    min-height: 300px;
+  }
+}
+
+/* Further adjustments for small phones */
+@media (max-width: 480px) {
+  body {
+    font-size: 10px; /* smaller base font */
+  }
+
+  /* Buttons smaller */
+  .button-container button {
+    font-size: 18px;
+    margin: 5px;
+    padding: 3px 6px;
+  }
+
+  /* Table cells smaller, less padding */
+  .json-grid-container th,
+  .json-grid-container td {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+
+  /* JSON path panel smaller */
+  #json-path-panel {
+    font-size: 12px;
+    padding: 3px 5px;
+  }
 }
