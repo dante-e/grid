@@ -1,4 +1,4 @@
-# GRID
+# Grid
 
 [jsongrid.dev](https://www.jsongrid.dev/)
 
