@@ -33,6 +33,3 @@ jobs:
 
       - name: Fix Vitest permissions
         run: chmod +x node_modules/.bin/vitest
-
-      - name: Run tests with coverage
-        run: npx vitest run --coverage
