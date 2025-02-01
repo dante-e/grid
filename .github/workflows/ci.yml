@@ -20,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -28,12 +28,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Fix Vitest permissions
+        run: chmod +x node_modules/.bin/vitest
+
       - name: Run tests with coverage
         run: npx vitest run --coverage
-
-      - name: Upload Coverage Report
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage
