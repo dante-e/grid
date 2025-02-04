@@ -165,9 +165,9 @@
       <form class="json-grid-form">
         <button type="submit">grid</button>
       </form>
-      <button type="button" onclick="clearEditor()">clear</button>
-      <button type="button" onclick="paste()">paste</button>
-      <button type="button" onclick="formatJSON()">format</button>
+      <button type="button" id="clearFn">clear</button>
+      <button type="button" id="pasteFn">paste</button>
+      <button type="button" id="formatFn">format</button>
       <!-- Make sure the toggle button has this ID -->
       <button id="light-mode-toggle">light</button>
 
@@ -182,7 +182,7 @@
 
     <div id="json-path-panel">
       <span id="json-path-display">Hover over a value to see its path</span>
-      <button id="copy-path-button" onclick="copyJSONPath()">Copy Path</button>
+      <button id="copy-path-button" id="copy-path-button">Copy Path</button>
     </div>
 
     <div class="github-link-bar">
