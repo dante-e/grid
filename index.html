@@ -1,195 +1,121 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>JSON Grid - JSON Data to Grid Visualizer</title>
-    <meta name="description" content="Convert JSON data to a readable, Grid format for easier visualization."/>
-    <meta name="keywords" content="JSON, Grid"/>
-    <link rel="icon" type="image/x-icon" href="./assets/json-5.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JSON Grid</title>
+    <meta name="description" content="Convert JSON data to an interactive, editable grid." />
+    <link rel="icon" type="image/x-icon" href="./json-5.png" />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./css/grid.css" />
   </head>
   <body>
-    <div id="editor" class="editor">
-      {
-        "squadName": "Super hero squad",
-        "homeTown": "Metro City",
-        "formed": 2016,
-        "secretBase": "Super tower",
-        "active": true,
-        "members": [
-          {
-            "index": 0,
-            "isActive": false,
-            "age": 21,
-            "eyeColor": "blue",
-            "name": "Bentley Clayton",
-            "gender": "male",
-            "registered": "2018-05-02T05:35:41 +04:00"
-          },
-          {
-            "index": 1,
-            "isActive": false,
-            "age": 23,
-            "eyeColor": "blue",
-            "name": "Lela Ramos",
-            "gender": "female",
-            "registered": "2014-02-24T03:13:50 +05:00"
-          },
-          {
-            "index": 2,
-            "isActive": true,
-            "age": 38,
-            "eyeColor": "green",
-            "name": "Milagros Becker",
-            "gender": "female",
-            "registered": "2016-10-22T12:18:50 +04:00"
-          },
-          {
-            "index": 3,
-            "isActive": false,
-            "age": 30,
-            "eyeColor": "brown",
-            "name": "Mccoy Barrera",
-            "gender": "male",
-            "registered": "2016-12-03T03:44:57 +05:00"
-          },
-          {
-            "index": 4,
-            "isActive": false,
-            "age": 35,
-            "eyeColor": "brown",
-            "name": "Morton Bennett",
-            "gender": "male",
-            "registered": "2015-10-06T09:48:03 +04:00"
-          },
-          {
-            "index": 5,
-            "isActive": true,
-            "age": 20,
-            "eyeColor": "blue",
-            "name": "Acosta Bird",
-            "gender": "male",
-            "registered": "2019-02-11T09:59:58 +05:00"
-          },
-          {
-            "index": 6,
-            "isActive": false,
-            "age": 35,
-            "eyeColor": "blue",
-            "name": "Mcleod Keith",
-            "gender": "male",
-            "registered": "2014-04-24T07:50:11 +04:00"
-          },
-          {
-            "index": 7,
-            "isActive": false,
-            "age": 27,
-            "eyeColor": "brown",
-            "name": "Magdalena Burgess",
-            "gender": "female",
-            "registered": "2015-03-19T09:28:55 +04:00"
-          },
-          {
-            "index": 8,
-            "isActive": false,
-            "age": 37,
-            "eyeColor": "blue",
-            "name": "Cline Castaneda",
-            "gender": "male",
-            "registered": "2016-02-29T09:49:37 +05:00"
-          },
-          {
-            "index": 9,
-            "isActive": false,
-            "age": 39,
-            "eyeColor": "green",
-            "name": "Garcia Baker",
-            "gender": "male",
-            "registered": "2018-05-26T02:54:22 +04:00"
-          },
-          {
-            "index": 10,
-            "isActive": true,
-            "age": 40,
-            "eyeColor": "blue",
-            "name": "Lenora Keller",
-            "gender": "female",
-            "registered": "2017-12-19T05:12:17 +05:00"
-          },
-          {
-            "index": 11,
-            "isActive": false,
-            "age": 33,
-            "eyeColor": "green",
-            "name": "Kathryn Donovan",
-            "gender": "female",
-            "registered": "2014-03-21T12:33:36 +04:00"
-          },
-          {
-            "index": 12,
-            "isActive": true,
-            "age": 40,
-            "eyeColor": "blue",
-            "name": "Opal Hinton",
-            "gender": "female",
-            "registered": "2014-05-03T02:14:25 +04:00"
-          },
-          {
-            "index": 13,
-            "isActive": false,
-            "age": 25,
-            "eyeColor": "green",
-            "name": "Mayer Gray",
-            "gender": "male",
-            "registered": "2016-04-01T05:52:21 +04:00"
-          },
-          {
-            "index": 14,
-            "isActive": true,
-            "age": 22,
-            "eyeColor": "green",
-            "name": "Josefina Quinn",
-            "gender": "female",
-            "registered": "2015-02-07T12:04:14 +05:00"
-          }
-        ]
-      }
-    </div>
+    <div class="app-layout">
 
-    <div class="button-container">
-      <form class="json-grid-form">
-        <button type="submit">grid</button>
-      </form>
-      <button type="button" id="clearFn">clear</button>
-      <button type="button" id="pasteFn">paste</button>
-      <button type="button" id="formatFn">format</button>
-      <!-- Make sure the toggle button has this ID -->
-      <button id="light-mode-toggle">light</button>
+      <!-- Editor Panel -->
+      <div class="editor-panel" id="editor-panel">
 
-      <div class="search-container">
-        <input type="text" id="search-input" placeholder="search" />
+        <!-- Single-editor (normal mode) -->
+        <div id="editor-single">
+          <div id="editor-cm" class="cm-host"></div>
+        </div>
+
+        <!-- Dual-editor (diff mode, hidden by default) -->
+        <div id="editor-dual" class="hidden">
+          <div class="diff-pane">
+            <div class="diff-pane-label">original</div>
+            <div id="editor-left" class="cm-host"></div>
+          </div>
+          <div class="diff-pane">
+            <div class="diff-pane-label">modified</div>
+            <div id="editor-right" class="cm-host"></div>
+          </div>
+          <button id="btn-run-diff" class="btn-run-diff" aria-label="Run diff">run diff</button>
+        </div>
+
+        <!-- Drop-zone overlay -->
+        <div id="drop-overlay" class="drop-overlay" aria-hidden="true">
+          <span>drop .json file</span>
+        </div>
       </div>
+
+      <!-- Toolbar -->
+      <nav class="toolbar" aria-label="Tools">
+        <button id="btn-grid" class="btn" aria-label="Render grid">grid</button>
+        <button id="btn-clear" class="btn" aria-label="Clear editor">clear</button>
+        <button id="btn-paste" class="btn" aria-label="Paste from clipboard">paste</button>
+        <button id="btn-format" class="btn" aria-label="Format JSON">fmt</button>
+
+        <div class="toolbar-sep" role="separator"></div>
+
+        <button id="btn-share" class="btn" aria-label="Copy share link">share</button>
+
+        <div class="export-wrap">
+          <button id="btn-export" class="btn" aria-label="Export data" aria-expanded="false" aria-haspopup="true">export</button>
+          <div id="export-menu" class="export-menu" role="menu" aria-label="Export options">
+            <button data-export="json" role="menuitem">JSON</button>
+            <button data-export="csv" role="menuitem">CSV</button>
+            <button data-export="clipboard" role="menuitem">Copy</button>
+          </div>
+        </div>
+
+        <button id="btn-diff" class="btn" aria-label="Toggle diff mode">diff</button>
+
+        <div class="toolbar-sep" role="separator"></div>
+
+        <button id="btn-theme" class="btn" aria-label="Toggle theme">light</button>
+
+        <div class="search-wrap">
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="search"
+            aria-label="Search grid values"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span id="search-count" class="search-count" aria-live="polite"></span>
+          <button id="search-clear" class="search-clear" aria-label="Clear search">x</button>
+        </div>
+      </nav>
+
+      <!-- Grid Output -->
+      <div class="grid-panel">
+        <div id="container" class="json-grid-container" role="region" aria-label="JSON grid output"></div>
+      </div>
+
     </div>
 
-    <div class="json-grid-container-wrapper">
-      <div id="container" class="json-grid-container"></div>
-    </div>
-
-    <div id="json-path-panel">
+    <!-- Path Panel -->
+    <div id="json-path-panel" role="status" aria-live="polite">
       <span id="json-path-display">Hover over a value to see its path</span>
-      <button id="copy-path-button" id="copy-path-button">Copy Path</button>
+      <button id="copy-path-button" class="btn-inline" aria-label="Copy JSON path">copy path</button>
     </div>
 
-    <div class="github-link-bar">
-      <a href="https://github.com/dante-e" target="_blank">made by dante e.</a>
-    </div>
+    <!-- Footer -->
+    <footer class="footer-bar">
+      <a href="https://github.com/dante-e" target="_blank" rel="noopener noreferrer">made by dante e.</a>
+    </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.17.0/ace.js"></script>
-    <script type="module" src="./js/app.js"></script>
+    <script type="importmap">
+    {
+      "imports": {
+        "@codemirror/state":        "https://esm.sh/@codemirror/state@6",
+        "@codemirror/view":         "https://esm.sh/@codemirror/view@6",
+        "@codemirror/commands":     "https://esm.sh/@codemirror/commands@6",
+        "@codemirror/lang-json":    "https://esm.sh/@codemirror/lang-json@6",
+        "@codemirror/language":     "https://esm.sh/@codemirror/language@6",
+        "@codemirror/lint":         "https://esm.sh/@codemirror/lint@6",
+        "@codemirror/autocomplete": "https://esm.sh/@codemirror/autocomplete@6",
+        "@lezer/highlight":         "https://esm.sh/@lezer/highlight",
+        "lz-string":                "https://esm.sh/lz-string@1"
+      }
+    }
+    </script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
