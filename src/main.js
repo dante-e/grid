@@ -1,10 +1,11 @@
 import { JSONGrid } from './JSONGrid.js';
 import { DOMHelper } from './DOMHelper.js';
-import { state, setCurrentData, setMode, setTheme, resetPathState } from './state.js';
+import { state, setCurrentData, setMode, setTheme, resetPathState, setInputFormat, setRawOriginal } from './state.js';
 import { EditorWrapper } from './editor.js';
 import { copyShareURL, saveToURL, loadFromURL, clearURL } from './url.js';
-import { downloadJSON, downloadCSV, copyJSONToClipboard } from './export.js';
+import { downloadJSON, downloadCSV, copyJSONToClipboard, downloadXML } from './export.js';
 import { computePathChanges, applyDiffToGrid, clearDiffHighlights } from './diff.js';
+import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 
 // ─── SAMPLE ───────────────────────────────────────────────────────────────────
 
@@ -40,19 +41,38 @@ const searchInput   = document.getElementById('search-input');
 const searchClear   = document.getElementById('search-clear');
 const searchCount   = document.getElementById('search-count');
 const btnTheme      = document.getElementById('btn-theme');
+const xmlBadge      = document.getElementById('xml-badge');
 
 // ─── MAIN EDITOR ──────────────────────────────────────────────────────────────
 
 const mainEditor = new EditorWrapper(
   editorMount,
   loadFromURL() ?? SAMPLE,
-  (val) => { val.trim() ? saveToURL(val) : clearURL(); },
+  (val) => {
+    if (val.trim()) {
+      saveToURL(val);
+      // Auto-switch language so the JSON linter doesn't fire on XML content.
+      if (looksLikeXML(val)) {
+        mainEditor.setLanguage('xml');
+        setInputFormat('xml');
+      } else {
+        mainEditor.setLanguage('json');
+        setInputFormat('json');
+      }
+    } else {
+      clearURL();
+      mainEditor.setLanguage('json');
+      setInputFormat('json');
+    }
+  },
   state.theme,
 );
 
 let diffLeftEditor  = null;
 let diffRightEditor = null;
 let _runDiffBound   = null;
+let _diffMatchEls   = [];
+let _diffIdx        = -1;
 
 // ─── GRID RENDER ─────────────────────────────────────────────────────────────
 
@@ -62,18 +82,86 @@ function renderGrid(data) {
   JSONGrid.resetInstanceCounter();
   const grid = new JSONGrid(data, container, 'x', (updated) => {
     setCurrentData(updated);
-    mainEditor.setValue(JSON.stringify(updated, null, 2));
-    if (state.mode === 'normal') saveToURL(JSON.stringify(updated, null, 2));
+    // Only sync editor + URL when the original source was JSON;
+    // XML source editor is read-only so we leave it unchanged.
+    if (state.inputFormat === 'json') {
+      mainEditor.setValue(JSON.stringify(updated, null, 2));
+      if (state.mode === 'normal') saveToURL(JSON.stringify(updated, null, 2));
+    }
   });
   grid.render();
   if (pathDisplay) pathDisplay.textContent = 'Hover over a value to see its path';
 }
 
-function parseAndRender(jsonStr) {
+// ─── XML HELPERS ─────────────────────────────────────────────────────────────
+
+/** Returns true if the trimmed string looks like XML markup. */
+function looksLikeXML(str) {
+  const s = str.trimStart();
+  return s.startsWith('<?xml') || /^<[A-Za-z]/.test(s);
+}
+
+/** Shared XMLParser instance. */
+const _xmlParser = new XMLParser({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
+  textNodeName: '#text',
+  parseAttributeValue: true,
+  parseTagValue: true,
+  isArray: () => false,
+  trimValues: true,
+});
+
+/** Shared XMLBuilder instance (used for formatting and XML export). */
+const _xmlBuilder = new XMLBuilder({
+  ignoreAttributes: false,
+  attributeNamePrefix: '@_',
+  textNodeName: '#text',
+  format: true,
+  indentBy: '  ',
+  suppressEmptyNode: true,
+});
+
+/** Parse an XML string into a plain JS object tree. */
+function _parseXML(xmlStr) {
+  return _xmlParser.parse(xmlStr);
+}
+
+/** Pretty-print an XML string by round-tripping through the parser. */
+function _formatXML(xmlStr) {
+  return _xmlBuilder.build(_parseXML(xmlStr));
+}
+
+/** Activate XML mode: switch editor language, show badge. */
+function _enterXMLMode(rawXml) {
+  setInputFormat('xml');
+  setRawOriginal(rawXml);
+  mainEditor.setLanguage('xml');
+  xmlBadge?.classList.remove('hidden');
+}
+
+/** Deactivate XML mode: switch editor language back, hide badge. */
+function _exitXMLMode() {
+  setInputFormat('json');
+  setRawOriginal(null);
+  mainEditor.setLanguage('json');
+  xmlBadge?.classList.add('hidden');
+}
+
+function parseAndRender(rawStr) {
+  if (!rawStr?.trim()) return;
   try {
-    renderGrid(JSON.parse(jsonStr));
-  } catch {
-    showToast('Invalid JSON — fix syntax and try again.', 'error');
+    if (looksLikeXML(rawStr)) {
+      const data = _parseXML(rawStr);
+      _enterXMLMode(rawStr);
+      renderGrid(data);
+    } else {
+      _exitXMLMode();
+      renderGrid(JSON.parse(rawStr));
+    }
+  } catch (err) {
+    const isXml = looksLikeXML(rawStr);
+    showToast(`Invalid ${isXml ? 'XML' : 'JSON'} — fix syntax and try again.`, 'error');
   }
 }
 
@@ -99,6 +187,14 @@ document.getElementById('btn-grid')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-format')?.addEventListener('click', () => {
+  if (state.inputFormat === 'xml') {
+    try {
+      mainEditor.setValue(_formatXML(mainEditor.getValue()));
+    } catch {
+      showToast('Cannot format \u2014 invalid XML.', 'error');
+    }
+    return;
+  }
   try {
     mainEditor.setValue(JSON.stringify(JSON.parse(mainEditor.getValue()), null, 2));
   } catch {
@@ -107,6 +203,7 @@ document.getElementById('btn-format')?.addEventListener('click', () => {
 });
 
 document.getElementById('btn-clear')?.addEventListener('click', () => {
+  _exitXMLMode();
   mainEditor.setValue('');
   container.innerHTML = '';
   clearURL();
@@ -118,6 +215,14 @@ document.getElementById('btn-paste')?.addEventListener('click', async () => {
   } catch {
     showToast('Could not read clipboard.', 'error');
   }
+});
+
+// “Edit as JSON” — unlock XML read-only and convert source to JSON in editor
+document.getElementById('btn-unlock-xml')?.addEventListener('click', () => {
+  const json = JSON.stringify(state.currentData, null, 2);
+  _exitXMLMode();
+  mainEditor.setValue(json);
+  saveToURL(json);
 });
 
 // Share
@@ -156,6 +261,7 @@ exportMenu?.addEventListener('click', (e) => {
   const fmt = btn.dataset.export;
   if (fmt === 'json')      downloadJSON(state.currentData);
   if (fmt === 'csv')       downloadCSV(state.currentData);
+  if (fmt === 'xml')       downloadXML(state.currentData);
   if (fmt === 'clipboard') {
     copyJSONToClipboard(state.currentData)
       .then(() => flashBtn('btn-export', 'copied!'))
@@ -179,8 +285,13 @@ function enterDiff() {
   btnDiff.textContent = 'exit diff';
   btnDiff.classList.add('active');
   const cur = mainEditor.getValue();
+  const lang = state.inputFormat;
   diffLeftEditor  = new EditorWrapper(editorLeft,  cur, undefined, state.theme);
   diffRightEditor = new EditorWrapper(editorRight, cur, undefined, state.theme);
+  if (lang === 'xml') {
+    diffLeftEditor.setLanguage('xml');
+    diffRightEditor.setLanguage('xml');
+  }
   _runDiffBound = runDiff;
   document.getElementById('btn-run-diff')?.addEventListener('click', _runDiffBound);
 }
@@ -200,19 +311,43 @@ function exitDiff() {
   }
   clearDiffHighlights(container);
   document.getElementById('diff-legend')?.remove();
+  _diffMatchEls = [];
+  _diffIdx = -1;
 }
 
 function runDiff() {
   if (!diffLeftEditor || !diffRightEditor) return;
   try {
-    const left  = JSON.parse(diffLeftEditor.getValue());
-    const right = JSON.parse(diffRightEditor.getValue());
+    const leftStr  = diffLeftEditor.getValue();
+    const rightStr = diffRightEditor.getValue();
+
+    // Auto-detect XML or JSON for each panel independently
+    const left  = looksLikeXML(leftStr)  ? _parseXML(leftStr)  : JSON.parse(leftStr);
+    const right = looksLikeXML(rightStr) ? _parseXML(rightStr) : JSON.parse(rightStr);
+
+    // If both panels changed language, update editor syntax highlights
+    if (looksLikeXML(leftStr)  && diffLeftEditor.setLanguage)  diffLeftEditor.setLanguage('xml');
+    if (looksLikeXML(rightStr) && diffRightEditor.setLanguage) diffRightEditor.setLanguage('xml');
+
     renderGrid(right);
     const changes = computePathChanges(left, right);
     applyDiffToGrid(container, changes);
+
+    // Expand all ancestors of changed nodes so they’re visible immediately
+    container.querySelectorAll('.diff-added, .diff-removed, .diff-modified').forEach((el) => {
+      _expandAncestors(el);
+    });
+
+    // Build navigation list (in DOM order — querySelectorAll guarantees this)
+    _diffMatchEls = [...container.querySelectorAll(
+      'span.diff-added, span.diff-removed, span.diff-modified'
+    )];
+    _diffIdx = _diffMatchEls.length > 0 ? 0 : -1;
+
     _showDiffLegend(changes);
+    _goToDiff(); // jump to first change
   } catch {
-    showToast('Both panels must contain valid JSON.', 'error');
+    showToast('Both panels must contain valid JSON or XML.', 'error');
   }
 }
 
@@ -221,12 +356,49 @@ function _showDiffLegend(changes) {
   const total = changes.added.size + changes.removed.size + changes.modified.size;
   const legend = document.createElement('div');
   legend.id = 'diff-legend';
+
+  // Navigation controls (only when there are changes)
+  const navHtml = total > 0
+    ? `<button class="diff-nav-btn" id="diff-prev" aria-label="Previous change">↑</button>` +
+      `<span class="diff-nav-counter" id="diff-nav-counter">${_diffIdx + 1}/${_diffMatchEls.length}</span>` +
+      `<button class="diff-nav-btn" id="diff-next" aria-label="Next change">↓</button>`
+    : '';
+
   legend.innerHTML =
+    navHtml +
     `<span class="pill added">+${changes.added.size} added</span>` +
     `<span class="pill removed">&#8722;${changes.removed.size} removed</span>` +
     `<span class="pill modified">~${changes.modified.size} modified</span>` +
     `<span class="pill total">${total} change${total !== 1 ? 's' : ''}</span>`;
+
   container.parentElement?.insertBefore(legend, container);
+
+  document.getElementById('diff-prev')?.addEventListener('click', _diffPrev);
+  document.getElementById('diff-next')?.addEventListener('click', _diffNext);
+}
+
+function _goToDiff() {
+  // Remove previous active highlight
+  container.querySelectorAll('.diff-nav-active')
+    .forEach((el) => el.classList.remove('diff-nav-active'));
+  if (_diffIdx < 0 || !_diffMatchEls[_diffIdx]) return;
+  const el = _diffMatchEls[_diffIdx];
+  el.classList.add('diff-nav-active');
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  const counter = document.getElementById('diff-nav-counter');
+  if (counter) counter.textContent = `${_diffIdx + 1}/${_diffMatchEls.length}`;
+}
+
+function _diffNext() {
+  if (!_diffMatchEls.length) return;
+  _diffIdx = (_diffIdx + 1) % _diffMatchEls.length;
+  _goToDiff();
+}
+
+function _diffPrev() {
+  if (!_diffMatchEls.length) return;
+  _diffIdx = (_diffIdx - 1 + _diffMatchEls.length) % _diffMatchEls.length;
+  _goToDiff();
 }
 
 // ─── THEME ────────────────────────────────────────────────────────────────────
@@ -254,38 +426,108 @@ document.getElementById('copy-path-button')?.addEventListener('click', () => {
 
 // ─── SEARCH ──────────────────────────────────────────────────────────────────
 
+let _matchEls = [];
+let _matchIdx = -1;
+
 searchClear?.addEventListener('click', () => {
   searchInput.value = '';
-  _removeHighlights();
-  _shrinkAll();
-  searchCount.textContent = '';
+  _clearSearch();
   searchClear.classList.remove('visible');
 });
 
-searchInput?.addEventListener('input', _debounce(_search, 400));
+searchInput?.addEventListener('input', _debounce(_search, 300));
 searchInput?.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { searchInput.value = ''; _search(); }
+  if (e.key === 'Escape') { searchInput.value = ''; _clearSearch(); searchClear?.classList.remove('visible'); }
+  if (e.key === 'Enter')  { e.preventDefault(); e.shiftKey ? _prevMatch() : _nextMatch(); }
 });
 
+document.getElementById('search-prev')?.addEventListener('click', _prevMatch);
+document.getElementById('search-next')?.addEventListener('click', _nextMatch);
+
 function _search() {
-  _removeHighlights();
+  _clearSearch();
   const query = searchInput.value.trim();
   searchClear?.classList.toggle('visible', query.length > 0);
-  if (!query) { _shrinkAll(); if (searchCount) searchCount.textContent = ''; return; }
+  if (!query) return;
 
-  let hits = 0;
-  container.querySelectorAll('td, th').forEach((el) => {
-    const found = _highlight(el, query);
-    if (found) { hits += found; _expandAncestors(el); }
+  // Highlight all matches and expand their ancestors.
+  // Only target leaf nodes (value spans, header cells, row-name cells) to
+  // avoid double-processing the same text through nested table recursion.
+  container.querySelectorAll('span[data-json-path], th, td.rowName').forEach((el) => {
+    if (_highlight(el, query)) _expandAncestors(el);
   });
-  if (searchCount) searchCount.textContent = hits > 0 ? String(hits) : '0';
+
+  // Hide data rows that contain no match (header rows are kept)
+  container.querySelectorAll('tr').forEach((tr) => {
+    if (tr.querySelector('td') && !tr.querySelector('mark.highlight')) {
+      tr.classList.add('search-hidden');
+    }
+  });
+
+  // Build navigation list and jump to first match
+  _matchEls = [...container.querySelectorAll('mark.highlight')];
+  _matchIdx = _matchEls.length > 0 ? 0 : -1;
+  _goToMatch();
+  _updateCounter();
+  const hasMatches = _matchEls.length > 0;
+  document.getElementById('search-prev')?.classList.toggle('visible', hasMatches);
+  document.getElementById('search-next')?.classList.toggle('visible', hasMatches);
+}
+
+function _clearSearch() {
+  _removeHighlights();
+  _showAllRows();
+  _shrinkAll();
+  _matchEls = [];
+  _matchIdx = -1;
+  if (searchCount) searchCount.textContent = '';
+  document.getElementById('search-prev')?.classList.remove('visible');
+  document.getElementById('search-next')?.classList.remove('visible');
+}
+
+function _nextMatch() {
+  if (!_matchEls.length) return;
+  _matchIdx = (_matchIdx + 1) % _matchEls.length;
+  _goToMatch();
+  _updateCounter();
+}
+
+function _prevMatch() {
+  if (!_matchEls.length) return;
+  _matchIdx = (_matchIdx - 1 + _matchEls.length) % _matchEls.length;
+  _goToMatch();
+  _updateCounter();
+}
+
+function _goToMatch() {
+  container.querySelectorAll('mark.highlight-active')
+    .forEach((el) => el.classList.remove('highlight-active'));
+  if (_matchIdx < 0 || !_matchEls[_matchIdx]) return;
+  const el = _matchEls[_matchIdx];
+  el.classList.add('highlight-active');
+  el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+
+function _updateCounter() {
+  if (!searchCount) return;
+  searchCount.textContent = _matchEls.length
+    ? `${_matchIdx + 1}/${_matchEls.length}`
+    : '0';
 }
 
 function _removeHighlights() {
   container.querySelectorAll('.highlight').forEach((el) => {
-    el.parentNode?.replaceChild(document.createTextNode(el.textContent ?? ''), el);
-    el.parentNode?.normalize();
+    const parent = el.parentNode;
+    if (parent) {
+      parent.replaceChild(document.createTextNode(el.textContent ?? ''), el);
+      parent.normalize();
+    }
   });
+}
+
+function _showAllRows() {
+  container.querySelectorAll('tr.search-hidden')
+    .forEach((tr) => tr.classList.remove('search-hidden'));
 }
 
 function _shrinkAll() {
@@ -326,7 +568,7 @@ function _highlight(element, query) {
         count += frag.querySelectorAll('.highlight').length;
         element.replaceChild(frag, child);
       }
-    } else if (child.nodeType === Node.ELEMENT_NODE && !child.hasAttribute('contenteditable')) {
+    } else if (child.nodeType === Node.ELEMENT_NODE) {
       count += _highlight(child, query);
     }
   });
@@ -359,19 +601,16 @@ editorPanel?.addEventListener('drop', (e) => {
   dropOverlay?.classList.remove('visible');
   const file = e.dataTransfer?.files[0];
   if (!file) return;
-  if (!file.name.endsWith('.json') && file.type !== 'application/json') {
-    showToast('Drop a .json file.', 'error'); return;
+  const isJSON = file.name.endsWith('.json') || file.type === 'application/json';
+  const isXML  = file.name.endsWith('.xml')  || file.type === 'application/xml' || file.type === 'text/xml';
+  if (!isJSON && !isXML) {
+    showToast('Drop a .json or .xml file.', 'error'); return;
   }
   const reader = new FileReader();
   reader.onload = (ev) => {
     const content = ev.target?.result;
-    try {
-      JSON.parse(content);
-      mainEditor.setValue(content);
-      parseAndRender(content);
-    } catch {
-      showToast('Dropped file contains invalid JSON.', 'error');
-    }
+    mainEditor.setValue(content);
+    parseAndRender(content);
   };
   reader.readAsText(file);
 });
@@ -395,7 +634,17 @@ function flashBtn(id, label, dur = 1500) {
 
 applyTheme(state.theme);
 
-const urlJson = loadFromURL();
-if (urlJson) {
-  try { renderGrid(JSON.parse(urlJson)); } catch { /* ignore stale data */ }
+// Ctrl+Enter (or Cmd+Enter on Mac) renders the grid in normal mode,
+// or runs the diff in diff mode — works even while the editor has focus.
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    if (state.mode === 'normal') parseAndRender(mainEditor.getValue());
+    else if (state.mode === 'diff') runDiff();
+  }
+});
+
+const _urlRaw = loadFromURL();
+if (_urlRaw) {
+  parseAndRender(_urlRaw);
 }

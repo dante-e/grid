@@ -7,6 +7,7 @@ import {
 } from '@codemirror/view';
 import { EditorState, Compartment } from '@codemirror/state';
 import { json, jsonParseLinter } from '@codemirror/lang-json';
+import { xml } from '@codemirror/lang-xml';
 import {
   indentOnInput,
   bracketMatching,
@@ -72,8 +73,18 @@ const draculaHighlight = HighlightStyle.define([
   { tag: tags.content,                color: '#f8f8f2' },
 ]);
 
-const themeCompartment  = new Compartment();
-const syntaxCompartment = new Compartment();
+const themeCompartment    = new Compartment();
+const syntaxCompartment   = new Compartment();
+const languageCompartment = new Compartment();
+const readOnlyCompartment = new Compartment();
+
+function _jsonLanguageExtensions() {
+  return [json(), lintGutter(), linter(jsonParseLinter())];
+}
+
+function _xmlLanguageExtensions() {
+  return [xml()];
+}
 
 function buildExtensions(onChangeCb, theme = 'dark') {
   return [
@@ -88,9 +99,8 @@ function buildExtensions(onChangeCb, theme = 'dark') {
         ? syntaxHighlighting(draculaHighlight)
         : syntaxHighlighting(defaultHighlightStyle, { fallback: true })
     ),
-    json(),
-    lintGutter(),
-    linter(jsonParseLinter()),
+    languageCompartment.of(_jsonLanguageExtensions()),
+    readOnlyCompartment.of(EditorState.readOnly.of(false)),
     highlightActiveLine(),
     keymap.of([
       ...closeBracketsKeymap,
@@ -138,6 +148,22 @@ export class EditorWrapper {
             : syntaxHighlighting(defaultHighlightStyle, { fallback: true })
         ),
       ],
+    });
+  }
+
+  setLanguage(format) {
+    this._view.dispatch({
+      effects: [
+        languageCompartment.reconfigure(
+          format === 'xml' ? _xmlLanguageExtensions() : _jsonLanguageExtensions()
+        ),
+      ],
+    });
+  }
+
+  setReadOnly(bool) {
+    this._view.dispatch({
+      effects: [readOnlyCompartment.reconfigure(EditorState.readOnly.of(bool))],
     });
   }
 

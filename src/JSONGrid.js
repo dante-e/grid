@@ -81,6 +81,11 @@ export class JSONGrid {
       const tr = DOMHelper.createElement('tr');
       const keyTd = DOMHelper.createElement('td', 'string', 'rowName');
       keyTd.textContent = key;
+      // Mark XML attribute keys (prefixed with @_) for distinct styling
+      if (key.startsWith('@_')) {
+        keyTd.dataset.keyType = 'attribute';
+        keyTd.textContent = key.slice(2); // display without @_ prefix
+      }
 
       const value = this.data[key];
       const childPath = `${this.path}.${key}`;

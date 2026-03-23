@@ -3,8 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JSON Grid</title>
-    <meta name="description" content="Convert JSON data to an interactive, editable grid." />
+
+    <!-- Primary SEO -->
+    <title>JSON Grid — Online JSON &amp; XML Viewer, Diff Checker, Formatter &amp; Editor</title>
+    <meta name="description" content="Free online tool to visualise, diff, explore and edit JSON and XML as an interactive grid. Paste or drop your data, compare two documents side-by-side, search, export to CSV or XML, and share via URL." />
+    <meta name="keywords" content="JSON viewer, JSON formatter, JSON editor, JSON to table, JSON diff checker, JSON compare, XML viewer, XML diff, XML formatter, JSON grid, JSON explorer, online JSON tool" />
+    <link rel="canonical" href="https://www.jsongrid.dev/" />
+
+    <!-- Open Graph (link previews in Slack, Discord, iMessage, LinkedIn…) -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content="https://www.jsongrid.dev/" />
+    <meta property="og:title"       content="JSON Grid — Online JSON &amp; XML Viewer, Diff Checker, Formatter &amp; Editor" />
+    <meta property="og:description" content="Instantly visualise JSON and XML as an interactive grid. Diff two documents side-by-side, search, inline-edit, export to CSV or XML, and share via URL — all in the browser." />
+    <meta property="og:image"       content="https://www.jsongrid.dev/og-image.png" />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name"   content="JSON Grid" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:url"         content="https://www.jsongrid.dev/" />
+    <meta name="twitter:title"       content="JSON Grid — Online JSON &amp; XML Viewer, Diff Checker, Formatter &amp; Editor" />
+    <meta name="twitter:description" content="Instantly visualise JSON and XML as an interactive grid. Diff two documents side-by-side, search, inline-edit, export to CSV or XML, and share via URL — all in the browser." />
+    <meta name="twitter:image"       content="https://www.jsongrid.dev/og-image.png" />
+
+    <!-- Structured data — WebApplication schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JSON Grid",
+      "url": "https://www.jsongrid.dev/",
+      "description": "Free online tool to visualise, diff, explore and edit JSON and XML as an interactive grid.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires a modern browser with JavaScript enabled",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "JSON viewer and formatter",
+        "XML viewer and formatter",
+        "Interactive editable grid",
+        "JSON diff checker and compare",
+        "XML diff checker and compare",
+        "Export to JSON, CSV, XML",
+        "Share via compressed URL",
+        "Full-text search with navigation",
+        "Dark and light theme"
+      ]
+    }
+    </script>
+
     <link rel="icon" type="image/x-icon" href="./json-5.png" />
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap"
@@ -13,6 +65,15 @@
     <link rel="stylesheet" href="./css/grid.css" />
   </head>
   <body>
+    <!-- Visually hidden heading for SEO and screen readers -->
+    <h1 class="visually-hidden">JSON Grid &mdash; Online JSON &amp; XML Viewer, Diff Checker, Formatter and Editor</h1>
+
+    <noscript>
+      <div style="font-family:monospace;padding:2rem;text-align:center">
+        JSON Grid requires JavaScript. Please enable it in your browser to use this tool.
+      </div>
+    </noscript>
+
     <div class="app-layout">
 
       <!-- Editor Panel -->
@@ -21,6 +82,10 @@
         <!-- Single-editor (normal mode) -->
         <div id="editor-single">
           <div id="editor-cm" class="cm-host"></div>
+          <div id="xml-badge" class="xml-badge hidden">
+            <span class="xml-badge-label">XML mode</span>
+            <button id="btn-unlock-xml" class="btn-inline">convert to JSON</button>
+          </div>
         </div>
 
         <!-- Dual-editor (diff mode, hidden by default) -->
@@ -38,7 +103,7 @@
 
         <!-- Drop-zone overlay -->
         <div id="drop-overlay" class="drop-overlay" aria-hidden="true">
-          <span>drop .json file</span>
+          <span>drop .json or .xml file</span>
         </div>
       </div>
 
@@ -47,7 +112,7 @@
         <button id="btn-grid" class="btn" aria-label="Render grid">grid</button>
         <button id="btn-clear" class="btn" aria-label="Clear editor">clear</button>
         <button id="btn-paste" class="btn" aria-label="Paste from clipboard">paste</button>
-        <button id="btn-format" class="btn" aria-label="Format JSON">fmt</button>
+        <button id="btn-format" class="btn" aria-label="Format JSON or XML">format</button>
 
         <div class="toolbar-sep" role="separator"></div>
 
@@ -58,6 +123,7 @@
           <div id="export-menu" class="export-menu" role="menu" aria-label="Export options">
             <button data-export="json" role="menuitem">JSON</button>
             <button data-export="csv" role="menuitem">CSV</button>
+            <button data-export="xml" role="menuitem">XML</button>
             <button data-export="clipboard" role="menuitem">Copy</button>
           </div>
         </div>
@@ -78,14 +144,18 @@
             autocomplete="off"
             spellcheck="false"
           />
-          <span id="search-count" class="search-count" aria-live="polite"></span>
-          <button id="search-clear" class="search-clear" aria-label="Clear search">x</button>
+          <div class="search-controls">
+            <span id="search-count" class="search-count" aria-live="polite"></span>
+            <button id="search-prev" class="search-nav" aria-label="Previous match">↑</button>
+            <button id="search-next" class="search-nav" aria-label="Next match">↓</button>
+            <button id="search-clear" class="search-clear" aria-label="Clear search">✕</button>
+          </div>
         </div>
       </nav>
 
       <!-- Grid Output -->
       <div class="grid-panel">
-        <div id="container" class="json-grid-container" role="region" aria-label="JSON grid output"></div>
+        <div id="container" class="json-grid-container" role="region" aria-label="Data grid output"></div>
       </div>
 
     </div>
@@ -99,6 +169,12 @@
     <!-- Footer -->
     <footer class="footer-bar">
       <a href="https://github.com/dante-e" target="_blank" rel="noopener noreferrer">made by dante e.</a>
+      <span class="visually-hidden">
+        JSON Grid is a free browser-based tool for viewing, formatting, editing and comparing JSON and XML data.
+        Paste JSON or XML into the editor, click grid to render it as a collapsible interactive table,
+        search values, diff and compare two documents side-by-side with added/removed/modified highlights,
+        export to JSON, CSV or XML, and share results via a compressed URL.
+      </span>
     </footer>
 
     <script type="importmap">
@@ -108,11 +184,13 @@
         "@codemirror/view":         "https://esm.sh/@codemirror/view@6",
         "@codemirror/commands":     "https://esm.sh/@codemirror/commands@6",
         "@codemirror/lang-json":    "https://esm.sh/@codemirror/lang-json@6",
+        "@codemirror/lang-xml":     "https://esm.sh/@codemirror/lang-xml@6",
         "@codemirror/language":     "https://esm.sh/@codemirror/language@6",
         "@codemirror/lint":         "https://esm.sh/@codemirror/lint@6",
         "@codemirror/autocomplete": "https://esm.sh/@codemirror/autocomplete@6",
         "@lezer/highlight":         "https://esm.sh/@lezer/highlight",
-        "lz-string":                "https://esm.sh/lz-string@1"
+        "lz-string":                "https://esm.sh/lz-string@1",
+        "fast-xml-parser":          "https://esm.sh/fast-xml-parser@4"
       }
     }
     </script>

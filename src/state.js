@@ -8,10 +8,20 @@ export const state = {
   diffLeft: null,
   diffRight: null,
   theme: localStorage.getItem('theme') ?? 'dark',
+  inputFormat: 'json',    // 'json' | 'xml'
+  rawOriginal: null,      // raw input string before parsing (for XML source preservation)
 };
 
 export function setCurrentData(data) {
   state.currentData = data;
+}
+
+export function setInputFormat(fmt) {
+  state.inputFormat = fmt;
+}
+
+export function setRawOriginal(str) {
+  state.rawOriginal = str;
 }
 
 export function setMode(mode) {

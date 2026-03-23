@@ -78,11 +78,46 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--border);
   overflow: hidden;
+}
+.editor-panel::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--border) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 #editor-single { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ─── XML badge ───────────────────────────────────────────────────────────── */
+.xml-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-family: var(--font);
+  flex-shrink: 0;
+}
+.xml-badge .xml-badge-label { color: var(--text-dim); }
+.xml-badge .btn-inline {
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.xml-badge .btn-inline:hover { color: var(--accent-hover); }
 
 .cm-host { flex: 1; min-height: 0; overflow: hidden; }
 .cm-host .cm-editor { height: 100%; }
@@ -209,17 +244,34 @@ body {
 
 /* Search */
 .search-wrap {
-  display: flex; align-items: center;
-  margin-top: 4px; padding-top: 4px;
-  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2px;
 }
 .search-input {
-  flex: 1; background: transparent; border: none; outline: none;
-  color: var(--text); font-family: var(--font); font-size: 14px;
-  padding: 6px 8px; width: 100%;
+  width: 100%; background: transparent; border: none; outline: none;
+  color: var(--text); font-family: var(--font); font-size: 13px;
+  padding: 5px 8px;
 }
 .search-input::placeholder { color: var(--text-dim); }
-.search-count { font-size: 10px; color: var(--text-dim); min-width: 20px; text-align: right; }
+.search-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 0 4px 2px;
+  min-height: 18px;
+}
+.search-count { font-size: 10px; color: var(--text-dim); flex: 1; white-space: nowrap; }
+.search-nav {
+  background: transparent; border: none;
+  color: var(--text-dim); font-size: 11px; cursor: pointer;
+  padding: 2px 3px; font-family: var(--font);
+  opacity: 0; transition: opacity var(--transition), color var(--transition);
+  line-height: 1;
+}
+.search-nav.visible { opacity: 1; }
+.search-nav:hover { color: var(--text); }
 .search-clear {
   background: transparent; border: none;
   color: var(--text-dim); font-size: 11px; cursor: pointer;
@@ -228,6 +280,7 @@ body {
 }
 .search-clear.visible { opacity: 1; }
 .search-clear:hover { color: var(--text); }
+tr.search-hidden { display: none; }
 
 /* ─── Grid panel ─────────────────────────────────────────────────────────────── */
 .grid-panel { overflow: auto; padding: 20px 16px 40px; background: var(--bg); }
@@ -260,6 +313,13 @@ body {
 
 .json-grid-container th { position: sticky; top: 0; z-index: 2; }
 .json-grid-container td.rowName { position: sticky; left: 0; z-index: 1; }
+
+/* XML attribute rows — muted italic to distinguish @_attr keys from element keys */
+.json-grid-container td.rowName[data-key-type="attribute"] {
+  color: var(--text-dim);
+  font-style: italic;
+  font-weight: 500;
+}
 
 /* ─── Value types ────────────────────────────────────────────────────────────── */
 .json-grid-container span.string  { color: var(--string); }
@@ -304,10 +364,15 @@ span.editable:focus {
 
 /* ─── Search highlight ───────────────────────────────────────────────────────── */
 mark.highlight {
-  background: #f1fa8c55; color: inherit;
-  border-radius: 2px; outline: 1px solid #f1fa8c88;
+  background: #f1fa8c33; color: inherit;
+  border-radius: 2px; outline: 1px solid #f1fa8c66;
 }
-.light-mode mark.highlight { background: #ffe06680; outline-color: #ffbb00; }
+mark.highlight-active {
+  background: #f1fa8c99; color: #282a36;
+  border-radius: 2px; outline: 2px solid #f1fa8c;
+}
+.light-mode mark.highlight { background: #ffe06660; outline-color: #ffbb00; }
+.light-mode mark.highlight-active { background: #ffcc00; color: #111; outline-color: #ee9900; }
 
 /* ─── Diff ───────────────────────────────────────────────────────────────────── */
 td.diff-added,    span.diff-added    { background: var(--diff-added);   }
@@ -317,7 +382,7 @@ span.diff-added   { color: var(--diff-add-text); }
 span.diff-removed { color: var(--diff-rem-text); }
 span.diff-modified{ color: var(--diff-mod-text); }
 
-#diff-legend { display: flex; gap: 8px; padding: 6px 4px; flex-wrap: wrap; }
+#diff-legend { display: flex; align-items: center; gap: 8px; padding: 6px 4px; flex-wrap: wrap; }
 #diff-legend .pill {
   padding: 2px 8px; border-radius: 999px;
   font-size: 10px; font-weight: 600;
@@ -326,6 +391,35 @@ span.diff-modified{ color: var(--diff-mod-text); }
 #diff-legend .removed  { background: var(--diff-removed);  color: var(--diff-rem-text); }
 #diff-legend .modified { background: var(--diff-modified); color: var(--diff-mod-text); }
 #diff-legend .total    { background: var(--bg-surface);    color: var(--text-muted);    }
+
+.diff-nav-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  line-height: 1.6;
+  font-family: var(--font);
+  transition: background var(--transition), color var(--transition);
+}
+.diff-nav-btn:hover { background: var(--bg-hover); color: var(--text); }
+
+.diff-nav-counter {
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 36px;
+  text-align: center;
+  font-family: var(--font);
+}
+
+/* Active / focused diff cell ring */
+span.diff-nav-active {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
 
 /* ─── Path panel ─────────────────────────────────────────────────────────────── */
 #json-path-panel {
@@ -386,6 +480,17 @@ span.diff-modified{ color: var(--diff-mod-text); }
 
 /* ─── Utility ────────────────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
+
+/* Off-screen but still in the accessibility/SEO tree (unlike display:none) */
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 /* ─── Responsive ─────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {

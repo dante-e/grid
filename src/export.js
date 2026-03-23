@@ -1,3 +1,5 @@
+import { XMLBuilder } from 'fast-xml-parser';
+
 // ─── JSON ──────────────────────────────────────────────────────────────────────
 export function downloadJSON(data) {
   _trigger(JSON.stringify(data, null, 2), 'data.json', 'application/json');
@@ -52,6 +54,19 @@ function _str(v) {
   if (v === null || v === undefined) return 'null';
   if (typeof v === 'object') return JSON.stringify(v);
   return String(v);
+}
+
+// ─── XML ───────────────────────────────────────────────────────────────────────
+export function downloadXML(data) {
+  const builder = new XMLBuilder({
+    ignoreAttributes: false,
+    attributeNamePrefix: '@_',
+    textNodeName: '#text',
+    format: true,
+    indentBy: '  ',
+    suppressEmptyNode: true,
+  });
+  _trigger(builder.build(data), 'data.xml', 'application/xml');
 }
 
 // ─── Clipboard ────────────────────────────────────────────────────────────────
