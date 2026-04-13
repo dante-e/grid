@@ -22,13 +22,13 @@ export const DOMHelper = {
   },
 
   createExpander(title, count, target, isObject) {
-    const brackets = isObject ? ['{ ', ' }'] : ['[ ', ' ]'];
+    const brackets = isObject ? ['{', '}'] : ['[', ']'];
     const expander = document.createElement('span');
     expander.classList.add('expander');
     const sign = DOMHelper.getExpanderSign(target);
     expander.innerHTML =
-      `<span class="expander-toggle">[${sign}]</span> ` +
-      `<span class="expander-title">${title}</span> ` +
+      `<span class="expander-toggle">[${sign}]</span>` +
+      `<span class="expander-title">${title}</span>` +
       `<span class="expander-count">${brackets[0]}${count}${brackets[1]}</span>`;
     expander.setAttribute(DOMHelper.EXPANDER_TARGET_ATTRIBUTE, target.id);
     expander.addEventListener('click', DOMHelper.onExpanderClick);

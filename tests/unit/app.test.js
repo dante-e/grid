@@ -359,6 +359,8 @@ describe('Search & Highlight Functions', () => {
   });
 });
 
+// ─── JSONGrid ─────────────────────────────────────────────────────────────────
+
 describe('JSONGrid', () => {
   beforeAll(() => {
     JSONGrid.resetInstanceCounter();

@@ -129,6 +129,7 @@
         </div>
 
         <button id="btn-diff" class="btn" aria-label="Toggle diff mode">diff</button>
+        <button id="btn-schema" class="btn" aria-label="Infer JSON Schema">schema</button>
 
         <div class="toolbar-sep" role="separator"></div>
 
@@ -159,6 +160,27 @@
       </div>
 
     </div>
+
+    <!-- Schema Sidebar -->
+    <aside id="schema-panel" class="schema-panel hidden" aria-label="Inferred JSON Schema">
+      <div class="schema-panel-header">
+        <span class="schema-panel-title">JSON Schema</span>
+        <button id="btn-copy-schema" class="btn-inline">copy schema</button>
+        <button id="btn-schema-close" class="btn-inline schema-close" aria-label="Close schema panel">&#x2715;</button>
+      </div>
+      <div class="schema-table-wrap">
+        <table class="schema-table" aria-label="Inferred schema fields">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Type(s)</th>
+              <th>Nullable</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </aside>
 
     <!-- Path Panel -->
     <div id="json-path-panel" role="status" aria-live="polite">

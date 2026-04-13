@@ -5,6 +5,7 @@ import { EditorWrapper } from './editor.js';
 import { copyShareURL, saveToURL, loadFromURL, clearURL } from './url.js';
 import { downloadJSON, downloadCSV, copyJSONToClipboard, downloadXML } from './export.js';
 import { computePathChanges, applyDiffToGrid, clearDiffHighlights } from './diff.js';
+import { inferSchema, summarizeSchema } from './schema.js';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 
 // ─── SAMPLE ───────────────────────────────────────────────────────────────────
@@ -74,11 +75,25 @@ let _runDiffBound   = null;
 let _diffMatchEls   = [];
 let _diffIdx        = -1;
 
+// ─── SCHEMA STATE ───────────────────────────────────────────────────────────
+let _fullSchema = null;
+
 // ─── GRID RENDER ─────────────────────────────────────────────────────────────
 
+/**
+ * Full render: updates state and rebuilds the DOM from canonical data.
+ * Call this whenever new data is loaded (paste, file drop, URL, diff).
+ */
 function renderGrid(data) {
   setCurrentData(data);
   resetPathState();
+  _renderDOM(data);
+}
+
+/**
+ * DOM-only render: rebuilds the grid from `data` without touching state.currentData.
+ */
+function _renderDOM(data) {
   JSONGrid.resetInstanceCounter();
   const grid = new JSONGrid(data, container, 'x', (updated) => {
     setCurrentData(updated);
@@ -91,7 +106,89 @@ function renderGrid(data) {
   });
   grid.render();
   if (pathDisplay) pathDisplay.textContent = 'Hover over a value to see its path';
+  // Keep schema panel in sync if it's currently open.
+  if (!document.getElementById('schema-panel')?.classList.contains('hidden')) {
+    refreshSchemaPanel();
+  }
 }
+
+// ─── SCHEMA ───────────────────────────────────────────────────────────────────
+
+/** Rebuild the schema table from state.currentData and cache the full schema. */
+function refreshSchemaPanel() {
+  const panel = document.getElementById('schema-panel');
+  if (!panel || !state.currentData) return;
+  _fullSchema = inferSchema(state.currentData);
+  const rows = summarizeSchema(_fullSchema);
+
+  const tbody = panel.querySelector('.schema-table tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  rows.forEach(({ path, depth, types, nullable }) => {
+    const tr = document.createElement('tr');
+
+    const pathTd = document.createElement('td');
+    pathTd.style.paddingLeft = `${8 + depth * 14}px`;
+    pathTd.textContent = path;
+
+    const typesTd = document.createElement('td');
+    if (types.length === 0) {
+      typesTd.textContent = '—';
+    } else {
+      types.forEach((type) => {
+        const span = document.createElement('span');
+        span.className = `type-badge type-${type}`;
+        span.textContent = type;
+        typesTd.appendChild(span);
+      });
+    }
+
+    const nullTd = document.createElement('td');
+    nullTd.className = 'nullable-cell';
+    nullTd.textContent = nullable ? '✓' : '';
+
+    tr.appendChild(pathTd);
+    tr.appendChild(typesTd);
+    tr.appendChild(nullTd);
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('btn-schema')?.addEventListener('click', () => {
+  const panel = document.getElementById('schema-panel');
+  if (!panel) return;
+  const isHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden');
+  document.getElementById('btn-schema')?.classList.toggle('active', isHidden);
+  if (isHidden) {
+    if (!state.currentData) {
+      showToast('Render a grid first to infer schema.', 'error');
+      panel.classList.add('hidden');
+      document.getElementById('btn-schema')?.classList.remove('active');
+      return;
+    }
+    refreshSchemaPanel();
+  }
+});
+
+document.getElementById('btn-schema-close')?.addEventListener('click', () => {
+  document.getElementById('schema-panel')?.classList.add('hidden');
+  document.getElementById('btn-schema')?.classList.remove('active');
+});
+
+document.getElementById('btn-copy-schema')?.addEventListener('click', async () => {
+  if (!_fullSchema) {
+    showToast('No schema to copy \u2014 open the schema panel first.', 'error');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(_fullSchema, null, 2));
+    flashBtn('btn-copy-schema', 'copied!');
+  } catch {
+    showToast('Clipboard unavailable.', 'error');
+  }
+});
 
 // ─── XML HELPERS ─────────────────────────────────────────────────────────────
 
