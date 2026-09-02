@@ -69,7 +69,7 @@ const draculaHighlight = HighlightStyle.define([
   // Punctuation  {} [] : ,
   { tag: tags.punctuation,            color: '#f8f8f2' },
   { tag: tags.bracket,                color: '#f8f8f2' },
-  // Anything else — plain text
+  // Anything else: plain text
   { tag: tags.content,                color: '#f8f8f2' },
 ]);
 

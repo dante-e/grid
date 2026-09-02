@@ -310,7 +310,7 @@ tr.search-hidden { display: none; }
   background: var(--bg-surface);
 }
 
-/* Row hover — value cells only; keeps key-name column and header rows visually stable */
+/* Row hover: value cells only; keeps key-name column and header rows visually stable */
 .json-grid-container tbody tr:hover > td:not(.rowName) {
   background: rgba(255,255,255,0.02);
 }
@@ -318,7 +318,7 @@ tr.search-hidden { display: none; }
   background: rgba(0,0,0,0.02);
 }
 
-/* XML attribute rows — muted italic to distinguish @_attr keys from element keys */
+/* XML attribute rows: muted italic to distinguish @_attr keys from element keys */
 .json-grid-container td.rowName[data-key-type="attribute"] {
   color: var(--text-dim);
   font-style: italic;

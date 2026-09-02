@@ -1,5 +1,5 @@
 /**
- * schema.js — pure schema-inference utilities.
+ * schema.js: pure schema-inference utilities.
  * No DOM dependencies, no global state.
  *
  * Exports:
@@ -69,12 +69,12 @@ function _mergeSchemas(schemas) {
     return merged;
   }
 
-  // All schemas share one non-object type — return representative schema as-is.
+  // All schemas share one non-object type, so return a representative schema as-is.
   // Produces a clean scalar type string instead of a single-element array.
   const filtered = types.filter(Boolean);
   if (filtered.length === 1) return schemas[0];
 
-  // Mixed types — collapse to a union type array
+  // Mixed types: collapse to a union type array
   return { type: filtered };
 }
 

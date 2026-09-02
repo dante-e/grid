@@ -26,10 +26,15 @@ export const DOMHelper = {
     const expander = document.createElement('span');
     expander.classList.add('expander');
     const sign = DOMHelper.getExpanderSign(target);
-    expander.innerHTML =
-      `<span class="expander-toggle">[${sign}]</span>` +
-      `<span class="expander-title">${title}</span>` +
-      `<span class="expander-count">${brackets[0]}${count}${brackets[1]}</span>`;
+
+    const toggle = DOMHelper.createElement('span', undefined, 'expander-toggle');
+    toggle.textContent = `[${sign}]`;
+    const titleElement = DOMHelper.createElement('span', undefined, 'expander-title');
+    titleElement.textContent = String(title);
+    const countElement = DOMHelper.createElement('span', undefined, 'expander-count');
+    countElement.textContent = `${brackets[0]}${count}${brackets[1]}`;
+    expander.append(toggle, titleElement, countElement);
+
     expander.setAttribute(DOMHelper.EXPANDER_TARGET_ATTRIBUTE, target.id);
     expander.addEventListener('click', DOMHelper.onExpanderClick);
     return expander;

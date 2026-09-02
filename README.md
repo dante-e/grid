@@ -8,13 +8,13 @@ A fast, browser-based tool for visualising, editing and comparing JSON and XML a
 
 ## Features
 
-- **JSON & XML support** — paste either format and the editor auto-detects it
-- **Interactive grid** — nested objects and arrays render as collapsible tables
-- **Inline editing** — click any value in the grid to edit it in place
-- **Diff / compare** — side-by-side diff with added / removed / modified highlights and jump-to-change navigation
-- **Full-text search** — highlights matches across the grid with ↑ ↓ navigation
-- **Export** — download as JSON, CSV, or XML, or copy to clipboard
-- **Share** — one click copies a compressed URL that restores the full grid
+- **JSON & XML support:** paste either format and the editor auto-detects it
+- **Interactive grid:** nested objects and arrays render as collapsible tables
+- **Inline editing:** click any value in the grid to edit it in place
+- **Diff / compare:** side-by-side diff with added / removed / modified highlights and jump-to-change navigation
+- **Full-text search:** highlights matches across the grid with ↑ ↓ navigation
+- **Export:** download as JSON, CSV, or XML, or copy to clipboard
+- **Share:** one click copies a compressed URL that restores the full grid
 - **Dark & light theme**
 
 ---
@@ -39,7 +39,7 @@ A fast, browser-based tool for visualising, editing and comparing JSON and XML a
 - Click **copy path** to copy it to clipboard
 
 #### Search
-- Type in the search bar — matches highlight live across the grid
+- Type in the search bar. Matches highlight live across the grid
 - Use `↑` / `↓` buttons or `Enter` / `Shift+Enter` to jump between matches
 
 #### Diff
@@ -53,7 +53,7 @@ A fast, browser-based tool for visualising, editing and comparing JSON and XML a
 - Click **export** and choose JSON, CSV, XML, or Copy to clipboard
 
 #### Share
-- Click **share** to copy a URL that encodes the current data — anyone with the link sees the same grid
+- Click **share** to copy a URL that encodes the current data. Anyone with the link sees the same grid
 
 ---
 
@@ -67,6 +67,19 @@ A fast, browser-based tool for visualising, editing and comparing JSON and XML a
 | `Escape` in search | Clear search |
 | `Enter` in cell | Confirm inline edit |
 | `Escape` in cell | Cancel inline edit |
+
+---
+
+## Development
+
+```sh
+npm install
+npm run dev
+```
+
+Run the unit tests with `npm test -- --run`, the production browser smoke tests with `npm run test:e2e`, and create a production bundle with `npm run build`.
+
+Pushes and pull requests to `main` run the full validation pipeline in GitHub Actions. Successful pushes to `main` deploy `dist` to GitHub Pages and verify the deployed URL. Enable **GitHub Actions** as the Pages source in the repository's **Settings > Pages** screen.
 
 ---
 

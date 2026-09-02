@@ -4,7 +4,7 @@ import { state, setCurrentData, setMode, setTheme, resetPathState, setInputForma
 import { EditorWrapper } from './editor.js';
 import { copyShareURL, saveToURL, loadFromURL, clearURL } from './url.js';
 import { downloadJSON, downloadCSV, copyJSONToClipboard, downloadXML } from './export.js';
-import { computePathChanges, applyDiffToGrid, clearDiffHighlights } from './diff.js';
+import { computePathChanges, buildDiffDisplayData, applyDiffToGrid, clearDiffHighlights } from './diff.js';
 import { inferSchema, summarizeSchema } from './schema.js';
 import { XMLParser, XMLBuilder } from 'fast-xml-parser';
 
@@ -95,7 +95,7 @@ function renderGrid(data) {
  */
 function _renderDOM(data) {
   JSONGrid.resetInstanceCounter();
-  const grid = new JSONGrid(data, container, 'x', (updated) => {
+  const grid = new JSONGrid(data, container, [], (updated) => {
     setCurrentData(updated);
     // Only sync editor + URL when the original source was JSON;
     // XML source editor is read-only so we leave it unchanged.
@@ -134,7 +134,7 @@ function refreshSchemaPanel() {
 
     const typesTd = document.createElement('td');
     if (types.length === 0) {
-      typesTd.textContent = '—';
+      typesTd.textContent = '-';
     } else {
       types.forEach((type) => {
         const span = document.createElement('span');
@@ -258,7 +258,7 @@ function parseAndRender(rawStr) {
     }
   } catch (err) {
     const isXml = looksLikeXML(rawStr);
-    showToast(`Invalid ${isXml ? 'XML' : 'JSON'} — fix syntax and try again.`, 'error');
+    showToast(`Invalid ${isXml ? 'XML' : 'JSON'}. Fix the syntax and try again.`, 'error');
   }
 }
 
@@ -295,7 +295,7 @@ document.getElementById('btn-format')?.addEventListener('click', () => {
   try {
     mainEditor.setValue(JSON.stringify(JSON.parse(mainEditor.getValue()), null, 2));
   } catch {
-    showToast('Cannot format — invalid JSON.', 'error');
+    showToast('Cannot format: invalid JSON.', 'error');
   }
 });
 
@@ -314,7 +314,7 @@ document.getElementById('btn-paste')?.addEventListener('click', async () => {
   }
 });
 
-// “Edit as JSON” — unlock XML read-only and convert source to JSON in editor
+// "Edit as JSON": unlock XML read-only and convert source to JSON in editor
 document.getElementById('btn-unlock-xml')?.addEventListener('click', () => {
   const json = JSON.stringify(state.currentData, null, 2);
   _exitXMLMode();
@@ -354,7 +354,7 @@ exportMenu?.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-export]');
   if (!btn) return;
   exportMenu.classList.remove('open');
-  if (!state.currentData) { showToast('Nothing to export — render a grid first.', 'error'); return; }
+  if (!state.currentData) { showToast('Nothing to export. Render a grid first.', 'error'); return; }
   const fmt = btn.dataset.export;
   if (fmt === 'json')      downloadJSON(state.currentData);
   if (fmt === 'csv')       downloadCSV(state.currentData);
@@ -426,8 +426,10 @@ function runDiff() {
     if (looksLikeXML(leftStr)  && diffLeftEditor.setLanguage)  diffLeftEditor.setLanguage('xml');
     if (looksLikeXML(rightStr) && diffRightEditor.setLanguage) diffRightEditor.setLanguage('xml');
 
-    renderGrid(right);
     const changes = computePathChanges(left, right);
+    setCurrentData(right);
+    resetPathState();
+    _renderDOM(buildDiffDisplayData(left, right));
     applyDiffToGrid(container, changes);
 
     // Expand all ancestors of changed nodes so they’re visible immediately
@@ -435,7 +437,7 @@ function runDiff() {
       _expandAncestors(el);
     });
 
-    // Build navigation list (in DOM order — querySelectorAll guarantees this)
+    // Build navigation list in DOM order; querySelectorAll guarantees this.
     _diffMatchEls = [...container.querySelectorAll(
       'span.diff-added, span.diff-removed, span.diff-modified'
     )];
@@ -732,7 +734,7 @@ function flashBtn(id, label, dur = 1500) {
 applyTheme(state.theme);
 
 // Ctrl+Enter (or Cmd+Enter on Mac) renders the grid in normal mode,
-// or runs the diff in diff mode — works even while the editor has focus.
+// or runs the diff in diff mode, even while the editor has focus.
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
     e.preventDefault();

@@ -1,5 +1,6 @@
 import { DOMHelper } from './DOMHelper.js';
 import { state, lockPath, unlockPath } from './state.js';
+import { toJSONPath, toJSONPointer } from './path.js';
 
 export class JSONGrid {
   static instances = 0;
@@ -7,10 +8,10 @@ export class JSONGrid {
   /**
    * @param {*}           data
    * @param {HTMLElement} [container]
-   * @param {string}      [path]
+  * @param {(string|number)[]} [path]
    * @param {Function}    [onDataChange]
    */
-  constructor(data, container, path = 'x', onDataChange) {
+  constructor(data, container, path = [], onDataChange) {
     this.data = data;
     this.container = container instanceof HTMLElement ? container : null;
     this.path = path;
@@ -43,7 +44,7 @@ export class JSONGrid {
 
     const rows = this.data.map((obj, index) => {
       const tr = DOMHelper.createElement('tr');
-      const elementPath = `${this.path}[${index}]`;
+      const elementPath = [...this.path, index];
 
       const firstTd = DOMHelper.createElement('td', 'number');
       firstTd.appendChild(this.generateLeafDOM(elementPath, index));
@@ -52,7 +53,7 @@ export class JSONGrid {
       if (obj !== null && typeof obj === 'object' && !Array.isArray(obj)) {
         keys.forEach((key) => {
           const value = obj[key];
-          const childPath = `${elementPath}.${key}`;
+          const childPath = [...elementPath, key];
           const td = DOMHelper.createElement('td', typeof value, 'table-wrapper');
           td.appendChild(
             new JSONGrid(value ?? null, null, childPath, this.onDataChange).generateDOM(key)
@@ -88,7 +89,7 @@ export class JSONGrid {
       }
 
       const value = this.data[key];
-      const childPath = `${this.path}.${key}`;
+      const childPath = [...this.path, key];
       let content;
       if (value !== null && typeof value === 'object') {
         content = new JSONGrid(value, null, childPath, this.onDataChange).generateDOM(key);
@@ -112,7 +113,8 @@ export class JSONGrid {
     const typeClass = value === null ? 'null' : typeof value;
     const span = DOMHelper.createElement('span', typeClass, 'value');
     span.textContent = value === null ? 'null' : String(value);
-    span.setAttribute('data-json-path', path);
+    span.setAttribute('data-json-path', toJSONPath(path));
+    span.setAttribute('data-json-pointer', toJSONPointer(path));
     span.setAttribute('data-value-type', typeClass);
     return span;
   }
@@ -242,21 +244,15 @@ export class JSONGrid {
   }
 
   static setValueAtPath(root, path, value) {
-    let cleanPath = path;
-    if      (cleanPath.startsWith('x['))  cleanPath = cleanPath.slice(1);
-    else if (cleanPath.startsWith('x.'))  cleanPath = cleanPath.slice(2);
-    else if (cleanPath === 'x')           return value;
+    if (path.length === 0) return value;
 
-    const tokens = cleanPath.match(/[^.[\]]+/g);
-    if (!tokens || tokens.length === 0) return value;
-
-    const clone = JSON.parse(JSON.stringify(root));
+    const clone = structuredClone(root);
     let cursor = clone;
-    for (let i = 0; i < tokens.length - 1; i++) {
+    for (let i = 0; i < path.length - 1; i++) {
       if (cursor == null) return root;
-      cursor = cursor[tokens[i]];
+      cursor = cursor[path[i]];
     }
-    if (cursor != null) cursor[tokens[tokens.length - 1]] = value;
+    if (cursor != null) cursor[path[path.length - 1]] = value;
     return clone;
   }
 
