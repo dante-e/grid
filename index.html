@@ -109,31 +109,33 @@
 
       <!-- Toolbar -->
       <nav class="toolbar" aria-label="Tools">
-        <button id="btn-grid" class="btn" aria-label="Render grid">grid</button>
-        <button id="btn-clear" class="btn" aria-label="Clear editor">clear</button>
-        <button id="btn-paste" class="btn" aria-label="Paste from clipboard">paste</button>
-        <button id="btn-format" class="btn" aria-label="Format JSON or XML">format</button>
+        <div class="toolbar-actions">
+          <button id="btn-grid" class="btn" aria-label="Render grid">grid</button>
+          <button id="btn-clear" class="btn" aria-label="Clear editor">clear</button>
+          <button id="btn-paste" class="btn" aria-label="Paste from clipboard">paste</button>
+          <button id="btn-format" class="btn" aria-label="Format JSON or XML">format</button>
 
-        <div class="toolbar-sep" role="separator"></div>
+          <div class="toolbar-sep" role="separator"></div>
 
-        <button id="btn-share" class="btn" aria-label="Copy share link">share</button>
+          <button id="btn-share" class="btn" aria-label="Copy share link">share</button>
 
-        <div class="export-wrap">
-          <button id="btn-export" class="btn" aria-label="Export data" aria-expanded="false" aria-haspopup="true">export</button>
-          <div id="export-menu" class="export-menu" role="menu" aria-label="Export options">
-            <button data-export="json" role="menuitem">JSON</button>
-            <button data-export="csv" role="menuitem">CSV</button>
-            <button data-export="xml" role="menuitem">XML</button>
-            <button data-export="clipboard" role="menuitem">Copy</button>
+          <div class="export-wrap">
+            <button id="btn-export" class="btn" aria-label="Export data" aria-expanded="false" aria-haspopup="true">export</button>
+            <div id="export-menu" class="export-menu" role="menu" aria-label="Export options">
+              <button data-export="json" role="menuitem">JSON</button>
+              <button data-export="csv" role="menuitem">CSV</button>
+              <button data-export="xml" role="menuitem">XML</button>
+              <button data-export="clipboard" role="menuitem">Copy</button>
+            </div>
           </div>
+
+          <button id="btn-diff" class="btn" aria-label="Toggle diff mode">diff</button>
+          <button id="btn-schema" class="btn" aria-label="Infer JSON Schema">schema</button>
+
+          <div class="toolbar-sep" role="separator"></div>
+
+          <button id="btn-theme" class="btn" aria-label="Toggle theme">light</button>
         </div>
-
-        <button id="btn-diff" class="btn" aria-label="Toggle diff mode">diff</button>
-        <button id="btn-schema" class="btn" aria-label="Infer JSON Schema">schema</button>
-
-        <div class="toolbar-sep" role="separator"></div>
-
-        <button id="btn-theme" class="btn" aria-label="Toggle theme">light</button>
 
         <div class="search-wrap">
           <input

@@ -333,17 +333,34 @@ document.getElementById('btn-share')?.addEventListener('click', async () => {
 });
 
 // Export dropdown
+function closeExportMenu() {
+  exportMenu?.classList.remove('open');
+  document.getElementById('btn-export')?.setAttribute('aria-expanded', 'false');
+}
+
 document.getElementById('btn-export')?.addEventListener('click', (e) => {
   e.stopPropagation();
   const isOpen = exportMenu.classList.contains('open');
   if (isOpen) {
-    exportMenu.classList.remove('open');
+    closeExportMenu();
   } else {
-    // Position the fixed menu next to the button
     const rect = e.currentTarget.getBoundingClientRect();
-    exportMenu.style.top  = rect.top + 'px';
-    exportMenu.style.left = (rect.right + 6) + 'px';
     exportMenu.classList.add('open');
+    const menu = exportMenu.getBoundingClientRect();
+    const gap = 6;
+    let left = rect.right + gap;
+    let top = rect.top;
+
+    if (window.innerWidth <= 900) {
+      left = Math.min(rect.left, window.innerWidth - menu.width - 8);
+      top = rect.bottom + gap;
+      if (top + menu.height > window.innerHeight - 8) top = rect.top - menu.height - gap;
+    } else if (left + menu.width > window.innerWidth - 8) {
+      left = rect.left - menu.width - gap;
+    }
+
+    exportMenu.style.left = `${Math.max(8, left)}px`;
+    exportMenu.style.top = `${Math.max(8, Math.min(top, window.innerHeight - menu.height - 8))}px`;
   }
   document.getElementById('btn-export').setAttribute(
     'aria-expanded', exportMenu.classList.contains('open').toString()
@@ -353,7 +370,7 @@ document.getElementById('btn-export')?.addEventListener('click', (e) => {
 exportMenu?.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-export]');
   if (!btn) return;
-  exportMenu.classList.remove('open');
+  closeExportMenu();
   if (!state.currentData) { showToast('Nothing to export. Render a grid first.', 'error'); return; }
   const fmt = btn.dataset.export;
   if (fmt === 'json')      downloadJSON(state.currentData);
@@ -366,7 +383,7 @@ exportMenu?.addEventListener('click', (e) => {
   }
 });
 
-document.addEventListener('click', () => exportMenu?.classList.remove('open'));
+document.addEventListener('click', closeExportMenu);
 
 // ─── DIFF MODE ───────────────────────────────────────────────────────────────
 

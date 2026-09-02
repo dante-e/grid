@@ -15,6 +15,7 @@ A fast, browser-based tool for visualising, editing and comparing JSON and XML a
 - **Full-text search:** highlights matches across the grid with ↑ ↓ navigation
 - **Export:** download as JSON, CSV, or XML, or copy to clipboard
 - **Share:** one click copies a compressed URL that restores the full grid
+- **Mobile-ready:** responsive editor, scrollable touch toolbar, and full-screen schema view
 - **Dark & light theme**
 
 ---
